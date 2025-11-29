@@ -8,11 +8,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Contoh data dummy — ganti dengan query Eloquent aslinya nanti
-        $totalOrders = 1234;
-        $activeSellers = 87;
-        $totalRevenue = 'Rp 120.000.000';
-
-        return view('admin.dashboard', compact('totalOrders','activeSellers','totalRevenue'));
+        // ambil data ringkasan jika perlu, contoh:
+        // $userCount = \App\Models\User::count();
+        return view('admin.dashboard'/*, compact('userCount') */);
     }
 }

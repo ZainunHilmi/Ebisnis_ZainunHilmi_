@@ -10,14 +10,12 @@ class AdminUserSeeder extends Seeder
 {
     public function run()
     {
-        User::updateOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin',
-                // pastikan kolom 'role' ada di migration users; nilai 'admin' di sini
-                'role' => 'admin',
-                'password' => Hash::make('password'), // ganti setelah testing
-            ]
-        );
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin'
+        ]);
+        
     }
 }

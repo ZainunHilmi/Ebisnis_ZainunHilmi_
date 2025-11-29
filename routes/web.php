@@ -1,68 +1,69 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| File ini aman digunakan walau Admin\DashboardController belum dibuat.
-| Jika kamu ingin pakai controller, jalankan:
-| php artisan make:controller Admin/DashboardController
-|
-*/
-
-// Redirect root ke /login supaya user langsung diarahkan ke halaman auth
+// ==========================
+// Redirect root → login
+// ==========================
 Route::get('/', function () {
     return redirect('/login');
 });
 
-// Dashboard user (biasa) - memakai middleware auth & verified (jika kamu pakai email verification)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// ==========================
+// USER ROUTES
+// ==========================
+Route::middleware([
+    'auth',
+    \App\Http\Middleware\IsUser::class
+])->prefix('user')->name('user.')->group(function () {
 
-// Routes yang dipakai user terautentikasi (profile)
+    Route::get('/dashboard', function () {
+        $products = \App\Models\Product::latest()->get();
+        return view('user.dashboard', compact('products'));
+    })->name('dashboard');
+
+    Route::get('/products/{product}', function (\App\Models\Product $product) {
+        return view('user.products.show', compact('product'));
+    })->name('products.show');
+
+    // User Product Management (CRUD)
+    Route::resource('my-products', \App\Http\Controllers\User\UserProductController::class)
+        ->parameters(['my-products' => 'product']);
+
+});
+
+// ==========================
+// ADMIN ROUTES
+// ==========================
+Route::middleware([
+    'auth',
+    'is_admin'
+])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', function () {
+        $totalUsers = \App\Models\User::count();
+        $totalProducts = \App\Models\Product::count();
+        return view('admin.dashboard', compact('totalUsers', 'totalProducts'));
+    })->name('dashboard');
+
+    // User Management
+    Route::resource('users', \App\Http\Controllers\Admin\AdminUserController::class);
+
+    // Product Management
+    Route::resource('products', \App\Http\Controllers\Admin\AdminProductController::class);
+});
+
+// ==========================
+// PROFILE (default Breeze)
+// ==========================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin routes — prefix /admin, name admin.*, middleware: auth + is_admin
-Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
-
-    // Jika controller Admin\DashboardController tersedia, gunakan itu.
-    if (class_exists(\App\Http\Controllers\Admin\DashboardController::class)) {
-        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-    } else {
-        // Fallback: jika ada view admin.dashboard, tampilkan; kalau tidak, redirect agar tidak menyebabkan error.
-        Route::get('/dashboard', function () {
-            if (view()->exists('admin.dashboard')) {
-                return view('admin.dashboard');
-            }
-
-            // Jika ingin, ubah redirect ini ke halaman lain yang kamu suka
-            return redirect('/')->with('error', 'Admin controller belum dibuat. Jalankan: php artisan make:controller Admin/DashboardController');
-        })->name('dashboard');
-    }
-
-    // contoh resource routes (aktifkan jika sudah buat controller)
-    // Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
-    // Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);
-    // Route::resource('sellers', App\Http\Controllers\Admin\SellerController::class);
-});
-
-// Autentikasi (file yang di-generate oleh Breeze/Jetstream/UI)
-// Jika kamu menggunakan Breeze/Jetstream, file auth.php sudah disertakan — biarkan seperti ini:
+// ==========================
+// Auth routes (Breeze)
+// ==========================
 require __DIR__ . '/auth.php';
-
-// Jika proyekmu masih memakai Auth::routes() (lama), hapus salah satunya kalau terjadi duplicate routes.
-// Jika butuh, uncomment di bawah ini (biasanya tidak perlu bila pakai Breeze/Jetstream):
-// Auth::routes();
-
-// HomeController default (jika kamu punya HomeController)
-Route::get('/home', [HomeController::class, 'index'])->name('home');
