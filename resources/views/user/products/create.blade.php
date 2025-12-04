@@ -2,17 +2,17 @@
     <x-slot name="header">
         <div class="flex items-center space-x-4">
             <a href="{{ route('user.my-products.index') }}"
-                class="text-gray-500 hover:text-indigo-600 transition-colors">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                class="text-gray-600 hover:text-indigo-600 transition-colors p-2 hover:bg-gray-100 rounded-xl">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
             </a>
             <div>
-                <h2 class="font-bold text-3xl text-gray-800 leading-tight">
+                <h2 class="font-extrabold text-4xl text-gray-900 leading-tight tracking-tight">
                     {{ __('Add New Product') }}
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">Create a new product listing</p>
+                <p class="text-base text-gray-600 mt-2 font-medium">Create a new product listing</p>
             </div>
         </div>
     </x-slot>
@@ -116,13 +116,14 @@
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
                         <a href="{{ route('user.my-products.index') }}"
-                            class="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                            class="px-8 py-4 border-2 border-gray-300 rounded-xl text-gray-700 text-base font-bold hover:bg-gray-100 hover:border-gray-400 transition-all">
                             Cancel
                         </a>
                         <button type="submit"
-                            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl">
+                            class="px-8 py-4 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white !text-opacity-100 text-base font-extrabold rounded-xl transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                            style="color: #000000ff !important;">
                             Create Product
                         </button>
                     </div>
