@@ -1,7 +1,7 @@
 {
     "version": 2,
     "buildCommand": "npm run build",
-    "installCommand": "composer install --no-dev --no-interaction --prefer-dist && npm install --legacy-peer-deps",
+    "installCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --no-interaction --prefer-dist && npm install --legacy-peer-deps",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.4"
