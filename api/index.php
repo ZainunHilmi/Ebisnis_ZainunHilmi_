@@ -1,4 +1,12 @@
 <?php
 
-// Forward Vercel requests to normal index.php
-require __DIR__ . '/../public/index.php';
+use Illuminate\Http\Request;
+
+// 1. Load Composer Autoloader
+// In Vercel, the vendor directory is in the root
+require __DIR__ . '/../vendor/autoload.php';
+
+// 2. Start Laravel and handle the request
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+$app->handleRequest(Request::capture());
