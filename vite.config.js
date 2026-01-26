@@ -19,8 +19,9 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
+                api: 'modern-compiler',
                 quietDeps: true,
-                silenceDeprecations: ['color-functions']
+                silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'mixed-decls'],
             }
         }
     },
@@ -28,14 +29,6 @@ export default defineConfig({
         outDir: 'public/build',
         emptyOutDir: true,
         manifest: true,
-        rollupOptions: {
-            output: {
-                manualChunks: undefined
-            }
-        },
-        commonjsOptions: {
-            transformMixedEsModules: true
-        }
     },
     resolve: {
         alias: {
