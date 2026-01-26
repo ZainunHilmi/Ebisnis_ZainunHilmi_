@@ -9,14 +9,13 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
             ],
-            refresh: true,
         }),
     ],
     css: {
         preprocessorOptions: {
             scss: {
-                api: 'modern-compiler', // or "modern"
                 quietDeps: true,
+                silenceDeprecations: ['import', 'color-functions', 'global-builtin', 'mixed-decls'],
             },
         },
     },
