@@ -21,7 +21,7 @@ export default defineConfig({
             scss: {
                 api: 'modern-compiler',
                 quietDeps: true,
-                silenceDeprecations: ['color-functions', 'import', 'global-builtin', 'mixed-decls'],
+                silenceDeprecations: ['color-functions', 'import', 'global-builtin'],
             }
         }
     },
