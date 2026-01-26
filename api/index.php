@@ -1,37 +1,33 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Http\Kernel;
 
-// 1. Manually set the base path for Vercel
-$basePath = realpath(__DIR__ . '/..');
+// 1. Force the working directory to the project root
+chdir(__DIR__ . '/..');
 
-// 2. Load the composer autoloader
-$autoloadPath = $basePath . '/vendor/autoload.php';
-
-if (!file_exists($autoloadPath)) {
-    header('HTTP/1.1 500 Internal Server Error');
-    echo "Fatal Error: Autoloader not found at $autoloadPath. Please ensure 'composer install' ran successfully.";
-    exit;
+// 2. Clear any stale cache that might have been bundled
+if (file_exists('bootstrap/cache/services.php')) {
+    @unlink('bootstrap/cache/services.php');
+}
+if (file_exists('bootstrap/cache/packages.php')) {
+    @unlink('bootstrap/cache/packages.php');
+}
+if (file_exists('bootstrap/cache/config.php')) {
+    @unlink('bootstrap/cache/config.php');
 }
 
-require $autoloadPath;
+// 3. Load Composer
+require __DIR__ . '/../vendor/autoload.php';
 
-// 3. Setup the Application
-$appPath = $basePath . '/bootstrap/app.php';
-if (!file_exists($appPath)) {
-    header('HTTP/1.1 500 Internal Server Error');
-    echo "Fatal Error: bootstrap/app.php not found at $appPath.";
-    exit;
-}
+// 4. Bootstrap Laravel
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$app = require_once $appPath;
+// 5. Handle the request
+$kernel = $app->make(Kernel::class);
 
-// 4. Trace the error if it fails here
-try {
-    $app->handleRequest(Request::capture());
-} catch (\Exception $e) {
-    header('Content-Type: text/plain');
-    echo "Laravel Boot Error:\n";
-    echo $e->getMessage() . "\n";
-    echo $e->getTraceAsString();
-}
+$response = $kernel->handle(
+    $request = Request::capture()
+)->send();
+
+$kernel->terminate($request, $response);
