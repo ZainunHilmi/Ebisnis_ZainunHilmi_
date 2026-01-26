@@ -1,6 +1,7 @@
 {
     "version": 2,
     "buildCommand": "npm run build",
+    "installCommand": "npm install --legacy-peer-deps",
     "outputDirectory": "public",
     "functions": {
         "api/index.php": {
@@ -10,15 +11,19 @@
     "routes": [
         {
             "src": "/build/(.*)",
-            "dest": "public/build/$1"
+            "dest": "/public/build/$1"
         },
         {
             "src": "/(css|js|images|favicon.ico)/(.*)",
-            "dest": "public/$1/$2"
+            "dest": "/public/$1/$2"
         },
         {
             "src": "/(.*)",
             "dest": "api/index.php"
         }
-    ]
+    ],
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "false"
+    }
 }

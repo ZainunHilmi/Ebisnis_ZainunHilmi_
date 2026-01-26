@@ -1,0 +1,12 @@
+// Override fungsi Bootstrap yang bermasalah
+@use "sass:color";
+
+@function to-rgb($value) {
+    @if type-of($value)==color {
+        @return color.red($value), color.green($value), color.blue($value);
+    }
+
+    @else {
+        @return $value;
+    }
+}
