@@ -2,7 +2,6 @@
     "version": 2,
     "buildCommand": "npm run build",
     "installCommand": "npm install --legacy-peer-deps",
-    "outputDirectory": "public",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.5"
