@@ -19,8 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.env') === 'production') {
-            config(['view.compiled' => '/tmp/storage/framework/views']);
-        }
+        //
     }
 }
