@@ -1,19 +1,15 @@
 {
     "version": 2,
-    "buildCommand": "npm run build",
-    "installCommand": "curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --no-interaction --prefer-dist && npm install --legacy-peer-deps",
+    "framework": null,
     "functions": {
-        "api/index.php": {
-            "runtime": "vercel-php@0.7.4"
-        },
-        "api/test.php": {
+        "api/*.php": {
             "runtime": "vercel-php@0.7.4"
         }
     },
     "routes": [
         {
             "src": "/test-debug",
-            "dest": "api/test.php"
+            "dest": "/api/test.php"
         },
         {
             "src": "/build/(.*)",
@@ -25,7 +21,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "api/index.php"
+            "dest": "/api/index.php"
         }
     ],
     "env": {
