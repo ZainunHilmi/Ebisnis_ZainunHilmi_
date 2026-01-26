@@ -5,9 +5,16 @@
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.4"
+        },
+        "api/test.php": {
+            "runtime": "vercel-php@0.7.4"
         }
     },
     "routes": [
+        {
+            "src": "/test-debug",
+            "dest": "api/test.php"
+        },
         {
             "src": "/build/(.*)",
             "dest": "/public/build/$1"
@@ -23,6 +30,6 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "false"
+        "APP_DEBUG": "true"
     }
 }
