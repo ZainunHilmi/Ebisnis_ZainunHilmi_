@@ -1,26 +1,21 @@
 {
     "version": 2,
-    "framework": null,
+    "framework": "laravel",
     "functions": {
-        "api/index.php": {
-            "runtime": "vercel-php@0.7.4"
-        },
-        "api/test.php": {
-            "runtime": "vercel-php@0.7.4"
+        "api/*.php": {
+            "runtime": "vercel-php@0.7.4",
+            "memory": 512,
+            "maxDuration": 10
         }
     },
     "routes": [
         {
-            "src": "/test-debug",
-            "dest": "/api/test.php"
+            "src": "/(css|js|images|favicon.ico)/(.*)",
+            "dest": "/public/$1/$2"
         },
         {
             "src": "/build/(.*)",
             "dest": "/public/build/$1"
-        },
-        {
-            "src": "/(css|js|images|favicon.ico)/(.*)",
-            "dest": "/public/$1/$2"
         },
         {
             "src": "/(.*)",
@@ -31,6 +26,7 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "LOG_CHANNEL": "stderr",
-        "VIEW_COMPILED_PATH": "/tmp/views"
+        "VIEW_COMPILED_PATH": "/tmp/views",
+        "SESSION_DRIVER": "cookie"
     }
 }
