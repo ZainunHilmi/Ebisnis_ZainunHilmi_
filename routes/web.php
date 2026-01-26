@@ -31,6 +31,20 @@ Route::middleware([
     Route::resource('my-products', \App\Http\Controllers\User\UserProductController::class)
         ->parameters(['my-products' => 'product']);
 
+    // Cart Routes
+    Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [\App\Http\Controllers\CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/{id}', [\App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{id}', [\App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
+
+    // Checkout Routes
+    Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [\App\Http\Controllers\CheckoutController::class, 'store'])->name('checkout.store');
+
+    // Payment Routes
+    Route::get('/payment/{order}', [\App\Http\Controllers\PaymentController::class, 'show'])->name('payment.show');
+    Route::post('/payment/{order}', [\App\Http\Controllers\PaymentController::class, 'process'])->name('payment.process');
+
 });
 
 // ==========================

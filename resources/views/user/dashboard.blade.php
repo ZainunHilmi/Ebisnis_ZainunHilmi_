@@ -48,6 +48,29 @@
                         <p class="text-blue-50 text-base font-medium leading-relaxed">Edit informasi profil dan ubah password Anda kapan saja</p>
                     </div>
                 </a>
+
+                {{-- Shopping Cart Card --}}
+                <a href="{{ route('user.cart.index') }}" class="group md:col-span-2">
+                    <div class="bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-101 flex items-center justify-between relative overflow-hidden">
+                         <div class="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+                        
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-extrabold text-white mb-2 tracking-tight drop-shadow-lg">Shopping Cart</h3>
+                             <p class="text-white/90 text-base font-medium leading-relaxed mb-6">Lihat produk yang telah Anda tambahkan dan lanjutkan ke pembayaran</p>
+                             
+                             <div class="inline-flex items-center bg-white px-6 py-3 rounded-xl text-emerald-700 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                                <span>View Cart</span>
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                             </div>
+                        </div>
+
+                        <div class="relative z-10 bg-white/25 backdrop-blur-md p-6 rounded-3xl shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
+                             <svg class="w-16 h-16 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             {{-- Marketplace Products Section --}}
@@ -106,6 +129,10 @@
                                     @endif
                                 </div>
                             </div>
+
+                            <a href="{{ route('user.products.show', $product) }}" class="absolute inset-0 z-10">
+                                <span class="sr-only">View Product</span>
+                            </a>
 
                             {{-- Product Details --}}
                             <div class="p-6">

@@ -96,6 +96,35 @@
                                     </div>
                                 </div>
 
+                                {{-- Add to Cart Form --}}
+                                @if($product->stock > 0)
+                                    <form action="{{ route('user.cart.store') }}" method="POST" class="mb-8">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+                                        <div class="flex items-end space-x-4">
+                                            <div class="w-24">
+                                                <label for="quantity"
+                                                    class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                                <input type="number" name="quantity" id="quantity" value="1" min="1"
+                                                    max="{{ $product->stock }}"
+                                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            </div>
+
+                                            <div class="flex-1 flex gap-4">
+                                                <button type="submit" name="action" value="add_to_cart"
+                                                    class="flex-1 bg-white border-2 border-indigo-600 text-indigo-600 px-6 py-3 rounded-xl font-bold text-lg hover:bg-indigo-50 transition duration-300 shadow-lg transform hover:-translate-y-1">
+                                                    Add to Cart
+                                                </button>
+                                                <button type="submit" name="action" value="buy_now"
+                                                    class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition duration-300 shadow-lg transform hover:-translate-y-1">
+                                                    Buy Now
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                @endif
+
                                 {{-- Description --}}
                                 <div class="mb-8">
                                     <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">

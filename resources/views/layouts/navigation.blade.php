@@ -9,6 +9,7 @@
             <a href="{{ route('admin.dashboard') }}">Dashboard</a>
         @else
             <a href="{{ route('user.dashboard') }}">Dashboard</a>
+            <a href="{{ route('user.cart.index') }}">Cart</a>
         @endif
 
         <a href="{{ route('profile.edit') }}">Profile</a>
