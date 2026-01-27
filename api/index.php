@@ -1,30 +1,54 @@
 <?php
 
-use Illuminate\Http\Request;
-
-// 1. Error Reporting for Vercel
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-try {
-    // 2. Load Autoloader
-    require __DIR__ . '/../vendor/autoload.php';
+header('Content-Type: text/plain');
+echo "--- VERCEL POST-DEPLOYMENT DIAGNOSTIC ---\n\n";
 
-    // 3. Start Laravel
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
+$root = dirname(__DIR__);
+echo "Root Path: $root\n";
 
-    // 4. Ensure Writeable Directories for Serverless
-    if (!is_dir('/tmp/views')) {
-        mkdir('/tmp/views', 0755, true);
+$checks = [
+    'vendor/autoload.php',
+    'bootstrap/app.php',
+    'public/build/manifest.json',
+    'vercel.json',
+    '.env'
+];
+
+foreach ($checks as $file) {
+    echo "$file: " . (file_exists($root . '/' . $file) ? "✅ EXISTS" : "❌ MISSING") . "\n";
+}
+
+if (is_dir($root . '/public/build')) {
+    echo "\nContents of public/build:\n";
+    print_r(scandir($root . '/public/build'));
+}
+
+echo "\nChecking Autoloader...\n";
+if (file_exists($root . '/vendor/autoload.php')) {
+    require $root . '/vendor/autoload.php';
+    echo "✅ Autoloader loaded.\n";
+
+    echo "\nChecking Laravel App...\n";
+    if (file_exists($root . '/bootstrap/app.php')) {
+        try {
+            $app = require_once $root . '/bootstrap/app.php';
+            echo "✅ App instance created.\n";
+            echo "Laravel Version: " . $app->version() . "\n";
+
+            echo "\nTrying to handle request...\n";
+            $app->handleRequest(Illuminate\Http\Request::capture());
+        } catch (\Throwable $e) {
+            echo "❌ CRASH DURING BOOT/REQUEST:\n";
+            echo $e->getMessage() . "\n";
+            echo "File: " . $e->getFile() . " (Line: " . $e->getLine() . ")\n";
+            echo "Trace:\n" . $e->getTraceAsString();
+        }
+    } else {
+        echo "❌ bootstrap/app.php MISSING\n";
     }
-
-    // 5. Handle the request
-    $app->handleRequest(Request::capture());
-
-} catch (\Throwable $e) {
-    header('Content-Type: text/plain', true, 500);
-    echo "--- LARAVEL RUNTIME ERROR ---\n";
-    echo "Message: " . $e->getMessage() . "\n";
-    echo "File: " . $e->getFile() . " (Line: " . $e->getLine() . ")\n\n";
-    echo "Stack Trace:\n" . $e->getTraceAsString();
+} else {
+    echo "❌ vendor/autoload.php MISSING. 'composer install' might have failed during build.\n";
 }
