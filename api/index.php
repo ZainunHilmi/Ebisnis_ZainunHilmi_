@@ -31,6 +31,22 @@ foreach ($checks as $file) {
 if (is_dir($root . '/public/build')) {
     echo "\nContents of public/build:\n";
     print_r(scandir($root . '/public/build'));
+
+    if (is_dir($root . '/public/build/assets')) {
+        echo "\nContents of public/build/assets:\n";
+        $assets = scandir($root . '/public/build/assets');
+        print_r($assets);
+
+        echo "\nAsset file sizes:\n";
+        foreach ($assets as $asset) {
+            if ($asset !== '.' && $asset !== '..') {
+                $path = $root . '/public/build/assets/' . $asset;
+                echo "$asset: " . filesize($path) . " bytes\n";
+            }
+        }
+    } else {
+        echo "\n❌ public/build/assets directory MISSING\n";
+    }
 }
 
 echo "\nChecking Autoloader...\n";
