@@ -4,34 +4,29 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 header('Content-Type: text/plain');
-echo "VITE ASSET DIAGNOSTIC\n\n";
+echo "VITE MANIFEST LOCATOR\n\n";
 
 $basePath = realpath(__DIR__ . '/..');
-echo "Base Path: $basePath\n";
+$buildPath = $basePath . '/public/build';
 
-echo "\n1. Checking public directory:\n";
-if (is_dir($basePath . '/public')) {
-    echo "✅ /public exists.\n";
-    print_r(scandir($basePath . '/public'));
-} else {
-    echo "❌ /public MISSING.\n";
+echo "1. Checking manifest locations:\n";
+$targets = [
+    $buildPath . '/manifest.json',
+    $buildPath . '/.vite/manifest.json',
+];
+
+foreach ($targets as $path) {
+    echo "$path: " . (file_exists($path) ? "✅ EXISTS" : "❌ MISSING") . "\n";
 }
 
-echo "\n2. Checking public/build directory:\n";
-if (is_dir($basePath . '/public/build')) {
-    echo "✅ /public/build exists.\n";
-    print_r(scandir($basePath . '/public/build'));
+echo "\n2. Contents of .vite directory (if exists):\n";
+if (is_dir($buildPath . '/.vite')) {
+    print_r(scandir($buildPath . '/.vite'));
 } else {
-    echo "❌ /public/build MISSING.\n";
+    echo ".vite directory not found.\n";
 }
 
-echo "\n3. Checking node_modules:\n";
-echo "node_modules exists: " . (is_dir($basePath . '/node_modules') ? "✅" : "❌") . "\n";
-
-echo "\n4. Environment Check:\n";
-echo "NODE_ENV: " . getenv('NODE_ENV') . "\n";
-
-echo "\n--- END DIAGNOSTIC ---\n";
+echo "\n--- END LOCATOR ---\n";
 echo "\nProceeding to Laravel Boot...\n\n";
 
 require $basePath . '/vendor/autoload.php';
