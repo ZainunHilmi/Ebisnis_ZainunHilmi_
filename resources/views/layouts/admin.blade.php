@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title') - Admin Panel</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap"
         rel="stylesheet">
     <style>
@@ -53,7 +53,8 @@
             <li class="nav-item px-3 {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <a class="nav-link flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-white/10 text-white border-l-4 border-white' : 'text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent' }}"
                     href="{{ route('admin.dashboard') }}">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
+                    <div
+                        class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -75,7 +76,8 @@
             <li class="nav-item px-3 {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <a class="nav-link flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-white/10 text-white border-l-4 border-white' : 'text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent' }}"
                     href="{{ route('admin.users.index') }}">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
+                    <div
+                        class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
@@ -90,7 +92,8 @@
             <li class="nav-item px-3 {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
                 <a class="nav-link flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.products.*') ? 'bg-white/10 text-white border-l-4 border-white' : 'text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent' }}"
                     href="{{ route('admin.products.index') }}">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
+                    <div
+                        class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -111,16 +114,20 @@
                 <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                     <div class="flex items-center space-x-3 mb-3">
                         <div class="flex-shrink-0">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-base shadow-lg border-2 border-white/20">
+                            <div
+                                class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-base shadow-lg border-2 border-white/20">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->name }}</p>
                             <div class="flex items-center mt-1">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                        </path>
                                     </svg>
                                     Admin
                                 </span>
