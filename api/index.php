@@ -4,48 +4,44 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 header('Content-Type: text/plain');
-echo "PHASE 1: ENVIRONMENT CHECK\n";
-echo "Current PHP: " . PHP_VERSION . "\n";
-echo "Current Dir: " . __DIR__ . "\n";
-echo "Root Path: " . realpath(__DIR__ . '/..') . "\n";
+echo "DEEP DIAGNOSTIC - Laravel Core Services\n\n";
 
-$vendor = __DIR__ . '/../vendor/autoload.php';
-echo "Checking Vendor: $vendor -> " . (file_exists($vendor) ? "✅" : "❌") . "\n";
+require __DIR__ . '/../vendor/autoload.php';
+$app = require __DIR__ . '/../bootstrap/app.php';
 
-$bootstrap = __DIR__ . '/../bootstrap/app.php';
-echo "Checking Bootstrap: $bootstrap -> " . (file_exists($bootstrap) ? "✅" : "❌") . "\n";
+echo "1. Laravel Version: " . $app->version() . "\n";
+echo "2. ViewServiceProvider Check:\n";
+$providerClass = \Illuminate\View\ViewServiceProvider::class;
+echo "   - Class Name: $providerClass\n";
+echo "   - Class Exists: " . (class_exists($providerClass) ? "✅" : "❌") . "\n";
 
-if (file_exists($vendor)) {
-    echo "PHASE 2: LOADING AUTOLOADER\n";
-    require $vendor;
-    echo "✅ Autoloader Loaded.\n";
+echo "3. Binding Status [initial]:\n";
+echo "   - [view] bound: " . ($app->bound('view') ? "✅" : "❌") . "\n";
+echo "   - [config] bound: " . ($app->bound('config') ? "✅" : "❌") . "\n";
 
-    if (class_exists(\Illuminate\Foundation\Application::class)) {
-        echo "✅ Laravel Application class found.\n";
-    } else {
-        echo "❌ Laravel Application class NOT found!\n";
-    }
-}
-
-if (file_exists($bootstrap)) {
-    echo "PHASE 3: BOOTSTRAPPING APP\n";
+if (!$app->bound('view') && class_exists($providerClass)) {
+    echo "\n4. Attempting MANUAL registration of ViewServiceProvider...\n";
     try {
-        $app = require_once $bootstrap;
-        echo "✅ App instance created.\n";
-        echo "Laravel Version: " . $app->version() . "\n";
-
-        echo "Checking if [view] is bound...\n";
-        if ($app->bound('view')) {
-            echo "✅ 'view' is bound.\n";
-        } else {
-            echo "❌ 'view' is NOT bound.\n";
-        }
-
+        $app->register(new $providerClass($app));
+        echo "   - Manual registration completed.\n";
+        echo "   - [view] bound NOW: " . ($app->bound('view') ? "✅" : "❌") . "\n";
     } catch (\Throwable $e) {
-        echo "❌ BOOTSTRAP FAILED!\n";
-        echo "Error: " . $e->getMessage() . "\n";
-        echo "File: " . $e->getFile() . " (Line: " . $e->getLine() . ")\n";
-        echo "Stack Trace:\n" . $e->getTraceAsString() . "\n";
+        echo "   - Manual registration FAILED: " . $e->getMessage() . "\n";
     }
 }
-echo "\n--- END OF DIAGNOSTIC ---\n";
+
+echo "\n5. Active Service Providers:\n";
+$providers = array_keys($app->getLoadedProviders());
+foreach ($providers as $p) {
+    echo "   - $p\n";
+}
+
+echo "\n6. Final Test - Resolving 'view':\n";
+try {
+    $view = $app->make('view');
+    echo "   - ✅ Successfully resolved 'view' service!\n";
+} catch (\Throwable $e) {
+    echo "   - ❌ Failed to resolve 'view': " . $e->getMessage() . "\n";
+}
+
+echo "\n--- END OF DEEP DIAGNOSTIC ---\n";
