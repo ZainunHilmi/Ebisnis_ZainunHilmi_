@@ -33,6 +33,10 @@ if (!$ca_path || !file_exists($ca_path)) {
 }
 
 try {
+    if (!defined('PDO::MYSQL_ATTR_SSL_CA')) {
+        die("Error: PDO::MYSQL_ATTR_SSL_CA constant is NOT defined. Is pdo_mysql loaded?");
+    }
+
     $options = [
         PDO::MYSQL_ATTR_SSL_CA => $ca_path,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -44,4 +48,6 @@ try {
     echo "Connection Successful!";
 } catch (PDOException $e) {
     echo "Connection Failed: " . $e->getMessage();
+} catch (\Throwable $e) {
+    echo "Fatal Error: " . $e->getMessage();
 }

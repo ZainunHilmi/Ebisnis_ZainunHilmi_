@@ -14,8 +14,15 @@ $checks = [
     'bootstrap/app.php',
     'public/build/manifest.json',
     'vercel.json',
-    '.env'
+    '.env',
+    'isrgrootx1.pem'
 ];
+
+echo "\nChecking PHP Extensions...\n";
+$exts = ['pdo', 'pdo_mysql', 'openssl', 'mbstring', 'bcmath'];
+foreach ($exts as $ext) {
+    echo "Extension $ext: " . (extension_loaded($ext) ? "✅ LOADED" : "❌ MISSING") . "\n";
+}
 
 foreach ($checks as $file) {
     echo "$file: " . (file_exists($root . '/' . $file) ? "✅ EXISTS" : "❌ MISSING") . "\n";
