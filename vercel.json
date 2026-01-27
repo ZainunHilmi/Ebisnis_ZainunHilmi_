@@ -20,6 +20,10 @@
             "dest": "/api/test.php"
         },
         {
+            "src": "/test-db",
+            "dest": "/api/test-db.php"
+        },
+        {
             "src": "/(.*)",
             "dest": "/api/index.php"
         }
