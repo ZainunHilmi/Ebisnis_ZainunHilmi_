@@ -1,34 +1,11 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+use Illuminate\Http\Request;
 
-header('Content-Type: text/plain');
-echo "VITE MANIFEST LOCATOR\n\n";
+// 1. Load Composer Autoloader
+require __DIR__ . '/../vendor/autoload.php';
 
-$basePath = realpath(__DIR__ . '/..');
-$buildPath = $basePath . '/public/build';
+// 2. Start Laravel and handle the request
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-echo "1. Checking manifest locations:\n";
-$targets = [
-    $buildPath . '/manifest.json',
-    $buildPath . '/.vite/manifest.json',
-];
-
-foreach ($targets as $path) {
-    echo "$path: " . (file_exists($path) ? "✅ EXISTS" : "❌ MISSING") . "\n";
-}
-
-echo "\n2. Contents of .vite directory (if exists):\n";
-if (is_dir($buildPath . '/.vite')) {
-    print_r(scandir($buildPath . '/.vite'));
-} else {
-    echo ".vite directory not found.\n";
-}
-
-echo "\n--- END LOCATOR ---\n";
-echo "\nProceeding to Laravel Boot...\n\n";
-
-require $basePath . '/vendor/autoload.php';
-$app = require_once $basePath . '/bootstrap/app.php';
-$app->handleRequest(Illuminate\Http\Request::capture());
+$app->handleRequest(Request::capture());

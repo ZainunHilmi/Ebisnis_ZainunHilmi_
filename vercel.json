@@ -1,6 +1,5 @@
 {
     "version": 2,
-    "buildCommand": "npm install && npm run build",
     "functions": {
         "api/*.php": {
             "runtime": "vercel-php@0.7.4"
@@ -22,7 +21,7 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
         "LOG_CHANNEL": "stderr",
         "VIEW_COMPILED_PATH": "/tmp/views",
         "APP_SERVICES_CACHE": "/tmp/services.php",
