@@ -10,7 +10,9 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->user()->role !== 'admin') {
+        $role = strtolower(trim((string) (auth()->user()->role ?? '')));
+
+        if ($role !== 'admin') {
             return redirect('/login')->with('error', 'Akses khusus admin.');
         }
 

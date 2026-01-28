@@ -11,7 +11,9 @@ class IsUser
 {
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->user()->role !== 'user') {
+        $role = strtolower(trim((string) (auth()->user()->role ?? '')));
+
+        if ($role !== 'user') {
             return redirect('/login')->with('error', 'Akses ditolak.');
         }
 

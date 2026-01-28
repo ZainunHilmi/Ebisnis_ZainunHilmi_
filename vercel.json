@@ -23,6 +23,10 @@
             "dest": "/api/test-db.php"
         },
         {
+            "src": "/seed-db",
+            "dest": "/api/seed-db.php"
+        },
+        {
             "src": "/(.*)",
             "dest": "/api/index.php"
         }
