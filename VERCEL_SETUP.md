@@ -19,3 +19,9 @@ Agar aplikasi ini dapat berjalan sempurna dan bisa melakukan Login/Register data
 **Catatan:**
 - Tanpa variabel di atas, aplikasi akan menggunakan `cookie` untuk session (tidak crash), tetapi gagal saat mencoba Login atau transaksi database.
 - Pastikan `isrgrootx1.pem` ada di root folder (sudah terupload).
+
+**Validasi:**
+Setelah input variables, buka `https://<domain-vercel>/debug-env`. Pastikan output:
+- `DB_CONNECTION: mysql`
+- `DB_HOST: <alamat-tidb-anda>` (Bukan NOT SET)
+- `OK: DB_CONNECTION is set to 'mysql'`
