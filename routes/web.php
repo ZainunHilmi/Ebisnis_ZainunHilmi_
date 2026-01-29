@@ -7,7 +7,14 @@ use Illuminate\Support\Facades\Route;
 // Redirect root → login
 // ==========================
 Route::get('/', function () {
-    return redirect('/login');
+    if (auth()->check()) {
+        $role = strtolower(trim((string) (auth()->user()->role ?? '')));
+        if ($role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('user.dashboard');
+    }
+    return redirect()->route('login');
 });
 
 // ==========================

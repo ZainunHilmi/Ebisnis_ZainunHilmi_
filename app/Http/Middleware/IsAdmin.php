@@ -13,7 +13,7 @@ class IsAdmin
         $role = strtolower(trim((string) (auth()->user()->role ?? '')));
 
         if ($role !== 'admin') {
-            return redirect('/login')->with('error', 'Akses khusus admin.');
+            return redirect('/')->with('error', 'Administrator access required.');
         }
 
         return $next($request);

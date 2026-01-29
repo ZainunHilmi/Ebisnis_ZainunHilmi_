@@ -14,7 +14,7 @@ class IsUser
         $role = strtolower(trim((string) (auth()->user()->role ?? '')));
 
         if ($role !== 'user') {
-            return redirect('/login')->with('error', 'Akses ditolak.');
+            return redirect('/')->with('error', 'Unauthorized access.');
         }
 
         return $next($request);
