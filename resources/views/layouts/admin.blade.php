@@ -1,280 +1,201 @@
 @php
-    $userRole = Auth::user()->role;
+    $user = Auth::user();
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', sidebarOpen: true }" :class="{ 'dark': darkMode }">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') - Admin Panel</title>
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap"
-        rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-        }
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        .bg-gradient-primary {
-            background-color: #4e73df;
-            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
-            background-size: cover;
-        }
-    </style>
+    <title>@yield('title') - {{ config('app.name', 'Admin Panel') }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
+
+    <!-- Scripts & Styles -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gray-100 font-sans antialiased">
-    <div class="min-h-screen flex" id="wrapper">
-        {{-- Admin Panel Sidebar --}}
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion w-64 min-h-screen flex flex-col text-white transition-all duration-300"
-            id="accordionSidebar">
-            {{-- Sidebar - Brand --}}
-            <a class="sidebar-brand flex items-center justify-center py-6 px-4 text-white no-underline border-b border-white/10"
-                href="{{ route('admin.dashboard') }}">
-                <div class="sidebar-brand-icon mr-3 bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/20">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                        </path>
-                    </svg>
-                </div>
-                <div class="sidebar-brand-text">
-                    <div class="text-xl font-bold tracking-tight">Admin Panel</div>
-                    <div class="text-xs text-blue-200 font-medium">Management System</div>
-                </div>
-            </a>
+<body
+    class="font-sans antialiased text-slate-900 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+    <div class="min-h-screen flex overflow-hidden">
 
-            {{-- Divider --}}
-            <hr class="border-t border-white/10 mx-4 my-2">
-
-            {{-- Nav Item - Dashboard --}}
-            <li class="nav-item px-3 {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <a class="nav-link flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-white/10 text-white border-l-4 border-white' : 'text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent' }}"
-                    href="{{ route('admin.dashboard') }}">
+        {{-- Sidebar --}}
+        <aside
+            class="fixed inset-y-0 left-0 z-50 w-72 transition-transform duration-300 transform bg-slate-900 dark:bg-slate-900 border-r border-slate-800 flex flex-col"
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+            {{-- Sidebar Header --}}
+            <div class="h-20 flex items-center px-6 border-b border-slate-800">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
                     <div
-                        class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-900/20">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
-                    <span class="ml-3 font-semibold text-sm">Dashboard</span>
+                    <div>
+                        <span
+                            class="text-xl font-bold tracking-tight text-white uppercase tracking-widest">{{ config('app.name', 'ADMIN') }}</span>
+                    </div>
                 </a>
-            </li>
-
-            {{-- Divider --}}
-            <hr class="border-t border-white/10 mx-4 my-2">
-
-            {{-- Heading --}}
-            <div class="sidebar-heading px-6 py-3 text-xs font-bold text-white/40 uppercase tracking-wider">
-                Management
             </div>
 
-            {{-- Nav Item - Users --}}
-            <li class="nav-item px-3 {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <a class="nav-link flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-white/10 text-white border-l-4 border-white' : 'text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent' }}"
-                    href="{{ route('admin.users.index') }}">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                            </path>
-                        </svg>
-                    </div>
-                    <span class="ml-3 font-semibold text-sm">Users</span>
+            {{-- Sidebar Navigation --}}
+            <nav class="flex-1 px-4 py-8 space-y-2 overflow-y-auto custom-scrollbar">
+                <div class="px-4 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-widest">General</div>
+
+                <a href="{{ route('admin.dashboard') }}"
+                    class="sidebar-nav {{ request()->routeIs('admin.dashboard') ? 'sidebar-nav-active' : '' }}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>Dashboard</span>
                 </a>
-            </li>
 
-            {{-- Nav Item - Products --}}
-            <li class="nav-item px-3 {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                <a class="nav-link flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.products.*') ? 'bg-white/10 text-white border-l-4 border-white' : 'text-white/70 hover:bg-white/5 hover:text-white border-l-4 border-transparent' }}"
-                    href="{{ route('admin.products.index') }}">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-white/20' : 'bg-white/5' }} transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                    </div>
-                    <span class="ml-3 font-semibold text-sm">Products</span>
+                <div class="px-4 mt-8 mb-4 text-xs font-semibold text-slate-500 uppercase tracking-widest">Management
+                </div>
+
+                <a href="{{ route('admin.users.index') }}"
+                    class="sidebar-nav {{ request()->routeIs('admin.users.*') ? 'sidebar-nav-active' : '' }}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span>Users Control</span>
                 </a>
-            </li>
 
-            {{-- Divider --}}
-            <hr class="border-t border-white/10 mx-4 my-2">
+                <a href="{{ route('admin.products.index') }}"
+                    class="sidebar-nav {{ request()->routeIs('admin.products.*') ? 'sidebar-nav-active' : '' }}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span>Inventory</span>
+                </a>
+            </nav>
 
-            {{-- Spacer --}}
-            <div class="flex-1"></div>
-
-            {{-- Admin Info Card --}}
-            <div class="p-4 border-t border-white/10">
-                <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <div class="flex items-center space-x-3 mb-3">
-                        <div class="flex-shrink-0">
-                            <div
-                                class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-base shadow-lg border-2 border-white/20">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->name }}</p>
-                            <div class="flex items-center mt-1">
-                                <span
-                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
-                                        </path>
-                                    </svg>
-                                    Admin
-                                </span>
-                            </div>
+            {{-- Sidebar Footer --}}
+            <div class="p-4 border-t border-slate-800">
+                <div class="p-4 rounded-2xl bg-slate-800/50 border border-slate-700">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=0ea5e9&color=fff"
+                            class="w-10 h-10 rounded-lg" alt="">
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-sm font-semibold text-white truncate">{{ $user->name }}</p>
+                            <p class="text-xs text-slate-400 truncate">{{ $user->email }}</p>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" class="mt-4">
                         @csrf
                         <button type="submit"
-                            class="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-white/10 hover:bg-white/20 transition-all rounded-lg border border-white/20">
+                            class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600/10 hover:bg-red-600/20 text-red-500 rounded-xl transition-all border border-red-600/20">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                </path>
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
-                            Sign Out
+                            Log Out
                         </button>
                     </form>
                 </div>
             </div>
+        </aside>
 
-        </ul>
-        {{-- End of Sidebar --}}
-
-        {{-- Content Wrapper --}}
-        <div id="content-wrapper" class="flex-1 flex flex-col min-w-0 overflow-hidden">
-
-            {{-- Main Content --}}
-            <div id="content" class="flex-1">
-
-                {{-- Topbar --}}
-                <nav
-                    class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow flex justify-between px-6 py-3">
-
-                    {{-- Sidebar Toggle (Topbar) --}}
-                    <button id="sidebarToggleTop" class="btn btn-link md:hidden rounded-full mr-3 text-blue-500">
+        {{-- Content Area --}}
+        <main
+            class="flex-1 bg-slate-50 dark:bg-slate-950 transition-all duration-300 min-h-screen relative flex flex-col"
+            :class="sidebarOpen ? 'ml-72' : 'ml-0'">
+            {{-- Topbar --}}
+            <header
+                class="h-20 flex items-center justify-between px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+                <div class="flex items-center">
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-all mr-4">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path x-show="sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h8m-8 6h16" />
+                            <path x-show="!sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold text-slate-800 dark:text-white">Admin Hub</h2>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    {{-- Dark Mode Toggle --}}
+                    <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-yellow-500 dark:hover:text-yellow-400 transition-all">
+                        <svg x-show="!darkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"></path>
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <svg x-show="darkMode" class="w-6 h-6 font-bold" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 16.243l.707.707M7.757 7.757l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
                         </svg>
                     </button>
 
-                    {{-- Topbar Search --}}
-                    <form class="hidden sm:inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="relative">
-                            <input type="text"
-                                class="form-control bg-gray-100 border-0 small px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
-                                placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                            <button
-                                class="btn btn-primary absolute right-0 top-0 h-full px-3 bg-blue-600 text-white rounded-r-md hover:bg-blue-700"
-                                type="button">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
-                            </button>
+                    <div class="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
+
+                    {{-- User Dropdown (Simulated with Profile Link) --}}
+                    <div class="flex items-center space-x-3 pl-2">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-slate-800 dark:text-white line-clamp-1">{{ $user->name }}
+                            </p>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 line-clamp-1">Super Admin
+                            </p>
                         </div>
-                    </form>
-
-                    {{-- Topbar Navbar --}}
-                    <ul class="navbar-nav ml-auto flex items-center space-x-4">
-
-                        {{-- Nav Item - Alerts --}}
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle relative text-gray-400 hover:text-gray-600" href="#"
-                                id="alertsDropdown" role="button">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                                    </path>
-                                </svg>
-                                {{-- Counter - Alerts --}}
-                                <span
-                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">3+</span>
-                            </a>
-                        </li>
-
-                        {{-- Nav Item - Messages --}}
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle relative text-gray-400 hover:text-gray-600" href="#"
-                                id="messagesDropdown" role="button">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                {{-- Counter - Messages --}}
-                                <span
-                                    class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">7</span>
-                            </a>
-                        </li>
-
-                        <div class="topbar-divider d-none d-sm-block w-px h-8 bg-gray-300 mx-2"></div>
-
-                        {{-- Nav Item - User Information --}}
-                        <li class="nav-item dropdown no-arrow flex items-center">
-                            <a class="nav-link dropdown-toggle flex items-center space-x-2" href="#" id="userDropdown"
-                                role="button">
-                                <span
-                                    class="mr-2 d-none d-lg-inline text-gray-600 small font-medium">{{ Auth::user()->name }}</span>
-                                <img class="img-profile rounded-full w-8 h-8 object-cover border border-gray-200"
-                                    src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=random">
-                            </a>
-
-                            {{-- Logout Form (Hidden but accessible via JS/CSS dropdown in real app, simplified here)
-                            --}}
-                            <form method="POST" action="{{ route('logout') }}" class="ml-4">
-                                @csrf
-                                <button type="submit" class="text-gray-400 hover:text-red-600 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </form>
-                        </li>
-
-                    </ul>
-
-                </nav>
-                {{-- End of Topbar --}}
-
-                {{-- Begin Page Content --}}
-                <div class="container-fluid px-6">
-                    @yield('content')
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=0ea5e9&color=fff"
+                            class="w-10 h-10 rounded-xl border-2 border-primary-500/20 shadow-lg shadow-primary-500/10"
+                            alt="">
+                    </div>
                 </div>
-                {{-- /.container-fluid --}}
+            </header>
 
+            {{-- Main Content Window --}}
+            <div class="flex-1 p-8 animate-fade-in relative z-10">
+                @if (session('success'))
+                    <div
+                        class="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center text-emerald-600 dark:text-emerald-400 animate-slide-up">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="font-medium">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @yield('content')
             </div>
-            {{-- End of Main Content --}}
 
             {{-- Footer --}}
-            <footer class="sticky-footer bg-white py-4 mt-auto border-t border-gray-200">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto text-gray-500 text-sm">
-                        <span>Copyright &copy; Your Website {{ date('Y') }}</span>
+            <footer
+                class="p-8 mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium tracking-wide">
+                        &copy; {{ date('Y') }} <span
+                            class="text-primary-600 dark:text-primary-400 font-bold uppercase">{{ config('app.name', 'ADMIN') }}</span>.
+                        All rights reserved.
+                    </p>
+                    <div class="flex items-center space-x-6">
+                        <a href="#"
+                            class="text-xs font-bold text-slate-400 hover:text-primary-500 transition-colors uppercase tracking-widest">Documentation</a>
+                        <a href="#"
+                            class="text-xs font-bold text-slate-400 hover:text-primary-500 transition-colors uppercase tracking-widest">Support</a>
                     </div>
                 </div>
             </footer>
-            {{-- End of Footer --}}
-
-        </div>
-        {{-- End of Content Wrapper --}}
-
+        </main>
     </div>
-    {{-- End of Page Wrapper --}}
+
+    @stack('scripts')
 </body>
 
 </html>

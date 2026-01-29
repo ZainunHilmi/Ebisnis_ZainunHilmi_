@@ -1,177 +1,215 @@
-{{-- resources/views/admin/dashboard.blade.php --}}
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
+@section('title', 'Admin Dashboard')
 
 @section('content')
-  {{-- Page Heading --}}
-  <div class="d-sm-flex align-items-center justify-content-between mb-4 flex justify-between items-center">
-    <h1 class="h3 mb-0 text-gray-800 text-2xl font-normal">Dashboard</h1>
-    <a href="#"
-      class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700 transition-colors flex items-center">
-      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-      </svg>
-      Generate Report
-    </a>
-  </div>
+    {{-- Hero Section --}}
+    <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 animate-fade-in">
+        <div>
+            <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Welcome back, <span class="text-gradient">{{ explode(' ', Auth::user()->name)[0] }}!</span>
+            </h1>
+            <p class="mt-2 text-slate-500 dark:text-slate-400 font-medium">Here's what's happening with your marketplace today.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export Report
+            </button>
+            <button class="btn-primary flex items-center shadow-primary-500/20">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                New Product
+            </button>
+        </div>
+    </div>
 
-  {{-- Statistics Cards Row --}}
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    {{-- Tasks Card --}}
-    <div class="card border-l-4 border-cyan-400 shadow-lg h-100 py-2 bg-white rounded-md">
-      <div class="card-body px-4">
-        <div class="row no-gutters align-items-center flex justify-between items-center">
-          <div class="col mr-2 w-full">
-            <div class="text-xs font-bold text-cyan-400 uppercase mb-1">Tasks</div>
-            <div class="row no-gutters align-items-center flex items-center">
-              <div class="col-auto">
-                <div class="h5 mb-0 mr-3 font-bold text-gray-800 text-xl">50%</div>
-              </div>
-              <div class="col flex-1 ml-2">
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="bg-cyan-400 h-2 rounded-full" style="width: 50%"></div>
+    {{-- Stats Grid --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        {{-- Revenue Card --}}
+        <div class="card p-6 group transition-all duration-300 hover:border-primary-500/30">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
-              </div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+12.5%</span>
             </div>
-          </div>
-          <div class="col-auto ml-4">
-            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-              </path>
-            </svg>
-          </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Total Revenue</p>
+            <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">$45,285</h3>
         </div>
-      </div>
+
+        {{-- Orders Card --}}
+        <div class="card p-6 group transition-all duration-300 hover:border-indigo-500/30">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+8.2%</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Total Orders</p>
+            <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">1,284</h3>
+        </div>
+
+        {{-- Products Card --}}
+        <div class="card p-6 group transition-all duration-300 hover:border-purple-500/30">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                </div>
+                <span class="text-xs font-bold text-slate-500 bg-slate-500/10 px-2 py-1 rounded-lg">Active</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Products</p>
+            <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ \App\Models\Product::count() }}</h3>
+        </div>
+
+        {{-- Customers Card --}}
+        <div class="card p-6 group transition-all duration-300 hover:border-blue-500/30">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+5.1%</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Customers</p>
+            <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ \App\Models\User::count() }}</h3>
+        </div>
     </div>
 
-    {{-- Pending Requests Card --}}
-    <div class="card border-l-4 border-yellow-400 shadow-lg h-100 py-2 bg-white rounded-md">
-      <div class="card-body px-4">
-        <div class="row no-gutters align-items-center flex justify-between items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-bold text-yellow-400 uppercase mb-1">Pending Requests</div>
-            <div class="h5 mb-0 font-bold text-gray-800 text-xl">18</div>
-          </div>
-          <div class="col-auto">
-            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-              </path>
-            </svg>
-          </div>
+    {{-- Main Analytics Section --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {{-- Charts Column --}}
+        <div class="lg:col-span-2 space-y-10">
+            {{-- Sales Overview --}}
+            <div class="card p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h4 class="text-xl font-bold text-slate-800 dark:text-white">Sales Performance</h4>
+                        <p class="text-sm text-slate-500 font-medium">Revenue generated over the last 30 days</p>
+                    </div>
+                    <select class="bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 px-4 py-2 focus:ring-2 focus:ring-primary-500">
+                        <option>Last 7 Days</option>
+                        <option selected>Last 30 Days</option>
+                        <option>Last 12 Months</option>
+                    </select>
+                </div>
+                {{-- Chart Placeholder --}}
+                <div class="h-80 w-full relative">
+                    <div class="absolute inset-0 flex items-end justify-between px-4 pb-2">
+                        @foreach([40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 100] as $height)
+                            <div class="w-full mx-1 bg-primary-500/20 dark:bg-primary-500/10 rounded-t-lg transition-all duration-700 hover:bg-primary-500 animate-slide-up" style="height: {{ $height }}%"></div>
+                        @endforeach
+                    </div>
+                    <div class="absolute inset-x-0 bottom-0 h-[1px] bg-slate-200 dark:bg-slate-800"></div>
+                </div>
+                <div class="flex justify-between mt-4 px-2">
+                    @foreach(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as $month)
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ $month }}</span>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Recent Activity --}}
+            <div class="card p-8">
+                <h4 class="text-xl font-bold text-slate-800 dark:text-white mb-6">Recent Activity</h4>
+                <div class="space-y-6">
+                    @foreach([
+                        ['icon' => 'shopping-cart', 'color' => 'primary', 'user' => 'Zainun Hilmi', 'action' => 'purchased', 'item' => 'MacBook Pro M3', 'time' => '2 mins ago'],
+                        ['icon' => 'user-plus', 'color' => 'indigo', 'user' => 'Sarah Connor', 'action' => 'registered', 'item' => 'new account', 'time' => '15 mins ago'],
+                        ['icon' => 'tag', 'color' => 'purple', 'user' => 'Ahmad Fauzi', 'action' => 'added', 'item' => 'Nike Air Max', 'time' => '1 hour ago'],
+                    ] as $activity)
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-full bg-{{ $activity['color'] }}-500/10 flex items-center justify-center text-{{ $activity['color'] }}-600 shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                    <span class="font-bold">{{ $activity['user'] }}</span> {{ $activity['action'] }} <span class="text-{{ $activity['color'] }}-500 font-bold tracking-tight">{{ $activity['item'] }}</span>
+                                </p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">{{ $activity['time'] }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <button class="w-full mt-8 py-3 text-sm font-bold text-primary-600 dark:text-primary-400 hover:bg-primary-500/5 transition-all rounded-xl border border-dashed border-primary-500/30">
+                    View All Activity
+                </button>
+            </div>
         </div>
-      </div>
+
+        {{-- Side Column --}}
+        <div class="space-y-10">
+            {{-- Category Breakdown --}}
+            <div class="card p-8">
+                <h4 class="text-xl font-bold text-slate-800 dark:text-white mb-6">Popular Categories</h4>
+                <div class="space-y-5">
+                    @foreach([
+                        ['name' => 'Electronics', 'count' => 125, 'percentage' => 45, 'color' => 'primary'],
+                        ['name' => 'Fashion', 'count' => 84, 'percentage' => 30, 'color' => 'indigo'],
+                        ['name' => 'Home & Living', 'count' => 42, 'percentage' => 15, 'color' => 'purple'],
+                        ['name' => 'Others', 'count' => 28, 'percentage' => 10, 'color' => 'slate'],
+                    ] as $category)
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $category['name'] }}</span>
+                                <span class="text-xs font-extrabold text-slate-500">{{ $category['count'] }} sold</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5">
+                                <div class="bg-{{ $category['color'] }}-500 h-2.5 rounded-full transition-all duration-1000" style="width: {{ $category['percentage'] }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Support Card --}}
+            <div class="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div class="relative z-10">
+                    <h4 class="text-2xl font-extrabold text-white leading-tight">Professional Support 24/7</h4>
+                    <p class="text-primary-100 text-sm mt-3 font-medium opacity-90 leading-relaxed">Need help with your management panel? Our expert team is ready to assist you any time.</p>
+                    <button class="mt-6 w-full bg-white text-primary-700 font-extrabold py-3.5 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all text-sm uppercase tracking-widest">
+                        Contact Support
+                    </button>
+                </div>
+                <div class="absolute -left-5 -bottom-5 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
+            </div>
+            
+            {{-- Quick Settings --}}
+            <div class="card p-8">
+                <h4 class="text-xl font-bold text-slate-800 dark:text-white mb-6">Quick Actions</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-primary-500/10 transition-all border border-slate-100 dark:border-slate-700 border-dashed group">
+                        <div class="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm mb-3 group-hover:text-primary-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-400">Settings</span>
+                    </button>
+                    <button class="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-emerald-500/10 transition-all border border-slate-100 dark:border-slate-700 border-dashed group">
+                        <div class="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm mb-3 group-hover:text-emerald-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-400">View Shop</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-
-    {{-- Products Card --}}
-    <div class="card border-l-4 border-green-400 shadow-lg h-100 py-2 bg-white rounded-md">
-      <div class="card-body px-4">
-        <div class="row no-gutters align-items-center flex justify-between items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-bold text-green-400 uppercase mb-1">Total Products</div>
-            <div class="h5 mb-0 font-bold text-gray-800 text-xl">{{ App\Models\Product::count() }}</div>
-          </div>
-          <div class="col-auto">
-            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
-              </path>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {{-- Users Card --}}
-    <div class="card border-l-4 border-purple-400 shadow-lg h-100 py-2 bg-white rounded-md">
-      <div class="card-body px-4">
-        <div class="row no-gutters align-items-center flex justify-between items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-bold text-purple-400 uppercase mb-1">Total Users</div>
-            <div class="h5 mb-0 font-bold text-gray-800 text-xl">{{ App\Models\User::count() }}</div>
-          </div>
-          <div class="col-auto">
-            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-              </path>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {{-- Content Row --}}
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-    {{-- Area Chart --}}
-    <div class="lg:col-span-2">
-      <div class="card shadow mb-4 bg-white rounded-md overflow-hidden">
-        {{-- Card Header - Dropdown --}}
-        <div class="card-header py-3 px-4 flex flex-row items-center justify-between bg-gray-50 border-b border-gray-200">
-          <h6 class="m-0 font-bold text-blue-600">Earnings Overview</h6>
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              <svg class="w-4 h-4 text-gray-400 hover:text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z">
-                </path>
-              </svg>
-            </a>
-          </div>
-        </div>
-        {{-- Card Body --}}
-        <div class="card-body p-4">
-          <div
-            class="chart-area relative h-80 w-full bg-gray-50 rounded flex items-center justify-center border border-dashed border-gray-300">
-            <p class="text-gray-400 italic">Area Chart Placeholder</p>
-            {{-- In a real app, you'd use Chart.js here --}}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {{-- Pie Chart --}}
-    <div class="lg:col-span-1">
-      <div class="card shadow mb-4 bg-white rounded-md overflow-hidden">
-        {{-- Card Header - Dropdown --}}
-        <div class="card-header py-3 px-4 flex flex-row items-center justify-between bg-gray-50 border-b border-gray-200">
-          <h6 class="m-0 font-bold text-blue-600">Revenue Sources</h6>
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              <svg class="w-4 h-4 text-gray-400 hover:text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z">
-                </path>
-              </svg>
-            </a>
-          </div>
-        </div>
-        {{-- Card Body --}}
-        <div class="card-body p-4">
-          <div
-            class="chart-pie relative h-64 w-full bg-gray-50 rounded flex items-center justify-center border border-dashed border-gray-300">
-            <p class="text-gray-400 italic">Donut Chart Placeholder</p>
-            {{-- In a real app, you'd use Chart.js here --}}
-          </div>
-          <div class="mt-4 text-center small text-xs text-gray-500">
-            <span class="mr-2">
-              <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Direct
-            </span>
-            <span class="mr-2">
-              <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-1"></span> Social
-            </span>
-            <span class="mr-2">
-              <span class="inline-block w-3 h-3 rounded-full bg-cyan-400 mr-1"></span> Referral
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 @endsection

@@ -55,11 +55,7 @@ Route::middleware([
     'is_admin'
 ])->prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/dashboard', function () {
-        $totalUsers = \App\Models\User::count();
-        $totalProducts = \App\Models\Product::count();
-        return view('admin.dashboard', compact('totalUsers', 'totalProducts'));
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // User Management
     Route::resource('users', \App\Http\Controllers\Admin\AdminUserController::class);
