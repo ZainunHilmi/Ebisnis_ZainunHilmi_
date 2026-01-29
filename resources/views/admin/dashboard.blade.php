@@ -14,50 +14,95 @@
           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
       </svg>
       Generate Report
-      <div class="col mr-2 w-full">
-        <div class="text-xs font-bold text-cyan-400 uppercase mb-1">Tasks
-        </div>
-        <div class="row no-gutters align-items-center flex items-center">
-          <div class="col-auto">
-            <div class="h5 mb-0 mr-3 font-bold text-gray-800 text-xl">50%</div>
-          </div>
-          <div class="col flex-1 ml-2">
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-cyan-400 h-2 rounded-full" style="width: 50%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-auto ml-4">
-        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-          </path>
-        </svg>
-      </div>
-  </div>
-  </div>
+    </a>
   </div>
 
-  {{-- Pending Requests Card Example --}}
-  <div class="card border-l-4 border-yellow-400 shadow h-100 py-2 bg-white rounded-md">
-    <div class="card-body px-4">
-      <div class="row no-gutters align-items-center flex justify-between items-center">
-        <div class="col mr-2">
-          <div class="text-xs font-bold text-yellow-400 uppercase mb-1">
-            Pending Requests</div>
-          <div class="h5 mb-0 font-bold text-gray-800 text-xl">18</div>
-        </div>
-        <div class="col-auto">
-          <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-            </path>
-          </svg>
+  {{-- Statistics Cards Row --}}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {{-- Tasks Card --}}
+    <div class="card border-l-4 border-cyan-400 shadow-lg h-100 py-2 bg-white rounded-md">
+      <div class="card-body px-4">
+        <div class="row no-gutters align-items-center flex justify-between items-center">
+          <div class="col mr-2 w-full">
+            <div class="text-xs font-bold text-cyan-400 uppercase mb-1">Tasks</div>
+            <div class="row no-gutters align-items-center flex items-center">
+              <div class="col-auto">
+                <div class="h5 mb-0 mr-3 font-bold text-gray-800 text-xl">50%</div>
+              </div>
+              <div class="col flex-1 ml-2">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-cyan-400 h-2 rounded-full" style="width: 50%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto ml-4">
+            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+              </path>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    {{-- Pending Requests Card --}}
+    <div class="card border-l-4 border-yellow-400 shadow-lg h-100 py-2 bg-white rounded-md">
+      <div class="card-body px-4">
+        <div class="row no-gutters align-items-center flex justify-between items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-bold text-yellow-400 uppercase mb-1">Pending Requests</div>
+            <div class="h5 mb-0 font-bold text-gray-800 text-xl">18</div>
+          </div>
+          <div class="col-auto">
+            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Products Card --}}
+    <div class="card border-l-4 border-green-400 shadow-lg h-100 py-2 bg-white rounded-md">
+      <div class="card-body px-4">
+        <div class="row no-gutters align-items-center flex justify-between items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-bold text-green-400 uppercase mb-1">Total Products</div>
+            <div class="h5 mb-0 font-bold text-gray-800 text-xl">{{ App\Models\Product::count() }}</div>
+          </div>
+          <div class="col-auto">
+            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Users Card --}}
+    <div class="card border-l-4 border-purple-400 shadow-lg h-100 py-2 bg-white rounded-md">
+      <div class="card-body px-4">
+        <div class="row no-gutters align-items-center flex justify-between items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-bold text-purple-400 uppercase mb-1">Total Users</div>
+            <div class="h5 mb-0 font-bold text-gray-800 text-xl">{{ App\Models\User::count() }}</div>
+          </div>
+          <div class="col-auto">
+            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   {{-- Content Row --}}
