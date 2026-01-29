@@ -14,7 +14,7 @@ class IsUser
         $role = strtolower(trim((string) (auth()->user()->role ?? '')));
 
         if ($role !== 'user') {
-            return redirect('/')->with('error', 'Unauthorized access.');
+            return redirect()->route('login')->with('error', 'Access limited to User accounts only.');
         }
 
         return $next($request);

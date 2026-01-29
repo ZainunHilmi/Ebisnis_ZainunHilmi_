@@ -11,8 +11,11 @@ Route::get('/', function () {
         $role = strtolower(trim((string) (auth()->user()->role ?? '')));
         if ($role === 'admin') {
             return redirect()->route('admin.dashboard');
+        } elseif ($role === 'user') {
+            return redirect()->route('user.dashboard');
         }
-        return redirect()->route('user.dashboard');
+        // Fallback for recognized auth but no specific dashboard access
+        return redirect()->route('profile.edit')->with('error', 'Role-based dashboard unavailable.');
     }
     return redirect()->route('login');
 });
