@@ -27,6 +27,10 @@
             "dest": "/api/seed-db.php"
         },
         {
+            "src": "/debug-env",
+            "dest": "/api/debug-env.php"
+        },
+        {
             "src": "/(.*)",
             "dest": "/api/index.php"
         }
