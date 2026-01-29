@@ -66,9 +66,7 @@
         @apply flex items-center px-4 py-3 text-slate-600 rounded-xl transition-all duration-200 hover:bg-primary-50 hover:text-primary-600;
     }
 
-    .sidebar-nav {
-        @apply group;
-    }
+
 
     .sidebar-nav-active {
         @apply bg-primary-50 text-primary-600 font-semibold;
