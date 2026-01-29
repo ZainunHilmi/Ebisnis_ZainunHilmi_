@@ -25,3 +25,11 @@ Setelah input variables, buka `https://<domain-vercel>/debug-env`. Pastikan outp
 - `DB_CONNECTION: mysql`
 - `DB_HOST: <alamat-tidb-anda>` (Bukan NOT SET)
 - `OK: DB_CONNECTION is set to 'mysql'`
+
+**3. Initial Database Seeding (Wajib Sekali Saja)**
+Agar bisa Login, Anda perlu membuat data user admin di database TiDB.
+1. Buka browser: `https://<domain-vercel>/seed-db`
+2. Tunggu hingga muncul pesan "🎉 Seeding Complete!".
+3. Login dengan:
+   - Email: `admin@example.com`
+   - Pass: `password`
