@@ -41,6 +41,13 @@ class AuthenticatedSessionController extends Controller
         // Normalisasi role: hindari case/whitespace/null issues
         $role = strtolower(trim((string) ($user->role ?? '')));
 
+        // Set session untuk isolation
+        session([
+            'user_id' => $user->id,
+            'user_role' => $role,
+            'login_timestamp' => now()->timestamp
+        ]);
+
         // Prioritas admin => redirect ke admin.dashboard
         if ($role === 'admin') {
             return redirect()->intended(route('admin.dashboard'));
@@ -55,6 +62,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Clear session data
+        session()->forget(['user_id', 'user_role', 'login_timestamp']);
+        
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
