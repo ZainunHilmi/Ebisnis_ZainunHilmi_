@@ -7,7 +7,7 @@ Agar aplikasi ini dapat berjalan sempurna dan bisa melakukan Login/Register data
 
 | Key | Value |
 | --- | --- |
-| `APP_KEY` | (Isi dengan APP_KEY dari .env Anda) |
+| `APP_KEY` | (Isi dengan APP_KEY dari .env Anda - PENTING: Harus sama dengan lokal!) |
 | `DB_CONNECTION` | `mysql` |
 | `DB_HOST` | `gateway01.ap-northeast-1.prod.aws.tidbcloud.com` |
 | `DB_PORT` | `4000` |
@@ -15,8 +15,17 @@ Agar aplikasi ini dapat berjalan sempurna dan bisa melakukan Login/Register data
 | `DB_USERNAME` | `CF3jpQX5kPzAEus.root` |
 | `DB_PASSWORD` | `u2Fhfij1uMV7kbga` |
 | `MYSQL_ATTR_SSL_CA` | `isrgrootx1.pem` |
+| `SESSION_DRIVER` | `database` |
+| `SESSION_SECURE_COOKIE` | `true` |
+| `SESSION_HTTP_ONLY` | `true` |
+| `SESSION_SAME_SITE` | `lax` |
 
-**Catatan:**
+**Catatan Penting:**
+- **APP_KEY**: WAJIB sama dengan APP_KEY di file `.env` lokal Anda. Jika berbeda, session akan hilang saat refresh halaman!
+- **SESSION_DRIVER=database**: WAJIB menggunakan database (bukan file) karena Vercel tidak mendukung penyimpanan file persisten.
+- **SESSION_SECURE_COOKIE=true**: WAJIB diaktifkan karena Vercel menggunakan HTTPS.
+- **SESSION_HTTP_ONLY=true**: Mencegah JavaScript mengakses cookie session.
+- **SESSION_SAME_SITE=lax**: Melindungi dari CSRF attack.
 - Tanpa variabel di atas, aplikasi akan menggunakan `cookie` untuk session (tidak crash), tetapi gagal saat mencoba Login atau transaksi database.
 - Pastikan `isrgrootx1.pem` ada di root folder (sudah terupload).
 

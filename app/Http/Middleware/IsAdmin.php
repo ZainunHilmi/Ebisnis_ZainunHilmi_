@@ -10,18 +10,15 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        // Force check user authentication and role
+        // Check user authentication - don't invalidate session on refresh
         if (!auth()->check()) {
-            auth()->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
             return redirect()->route('login')->with('error', 'Authentication required.');
         }
 
         $user = auth()->user();
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // SUPER STRICT role checking - NO EXCEPTIONS
+        // Role checking - only invalidate if role is wrong (not on auth failure)
         if ($role !== 'admin') {
             // Force logout for any non-admin trying to access admin routes
             auth()->logout();
@@ -36,15 +33,8 @@ class IsAdmin
             return redirect()->route('login')->with('error', 'Invalid role for admin access. Please login again.');
         }
 
-        // Double-check session integrity
-        if (session('user_role') !== 'admin') {
-            session(['user_role' => 'admin', 'role_verified_at' => now()]);
-        }
-
-        // Additional security check - verify user ID matches session
-        if (session('user_id') != $user->id) {
-            session(['user_id' => $user->id, 'user_role' => 'admin']);
-        }
+        // Sync session data with current user
+        session(['user_role' => 'admin', 'user_id' => $user->id, 'role_verified_at' => now()]);
 
         return $next($request);
     }
