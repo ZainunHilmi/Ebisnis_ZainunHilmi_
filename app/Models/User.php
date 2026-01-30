@@ -31,7 +31,7 @@ class User extends Authenticatable
 
     public function cartItems()
     {
-        return $this->hasOneThrough(CartItem::class, Cart::class);
+        return $this->hasManyThrough(CartItem::class, Cart::class);
     }
 
     public function orders()

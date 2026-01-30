@@ -30,7 +30,7 @@ Route::middleware([
 
     Route::get('/dashboard', function () {
         $products = \App\Models\Product::latest()->get();
-        $user = auth()->user();
+        $user = auth()->user()->load('cartItems');
         return view('user.dashboard', compact('products', 'user'));
     })->name('dashboard');
 
