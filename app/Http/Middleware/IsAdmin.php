@@ -10,7 +10,7 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        // Check user authentication - don't invalidate session on refresh
+        // Check user authentication
         if (!auth()->check()) {
             return redirect()->route('login')->with('error', 'Authentication required.');
         }
@@ -18,23 +18,16 @@ class IsAdmin
         $user = auth()->user();
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // Role checking - only invalidate if role is wrong (not on auth failure)
+        // Role checking - redirect only, NO logout to prevent global session invalidation
         if ($role !== 'admin') {
-            // Force logout for any non-admin trying to access admin routes
-            auth()->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            
-            // Redirect to appropriate dashboard or login
+            // Redirect user to user dashboard without logout
             if ($role === 'user') {
-                return redirect()->route('login')->with('error', 'User cannot access admin panel. Please login as admin.');
+                return redirect()->route('user.dashboard')->with('warning', 'User area is separate from admin panel.');
             }
             
-            return redirect()->route('login')->with('error', 'Invalid role for admin access. Please login again.');
+            // For unrecognized roles, redirect to login
+            return redirect()->route('login')->with('error', 'Invalid role. Please login again.');
         }
-
-        // Sync session data with current user
-        session(['user_role' => 'admin', 'user_id' => $user->id, 'role_verified_at' => now()]);
 
         return $next($request);
     }
