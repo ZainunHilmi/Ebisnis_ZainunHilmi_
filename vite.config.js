@@ -26,13 +26,23 @@ export default defineConfig({
         }
     },
     build: {
-        outDir: 'public/build',
-        emptyOutDir: true,
-        manifest: 'manifest.json',
+        // Kita biarkan Laravel Plugin yang menentukan outDir secara otomatis 
+        // agar tetap sinkron dengan helper @vite di Blade.
+        chunkSizeWarningLimit: 1600,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return id.toString().split('node_modules/')[1].split('/')[0].toString();
+                    }
+                }
+            }
+        }
     },
     resolve: {
         alias: {
             '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
+            '@': '/resources/js',
         }
     }
 });
