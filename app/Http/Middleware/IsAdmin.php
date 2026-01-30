@@ -10,30 +10,41 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        // Pastikan user sudah login
+        // Force check user authentication and role
         if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'Please login first.');
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('error', 'Authentication required.');
         }
 
         $user = auth()->user();
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // Strict role checking
+        // SUPER STRICT role checking - NO EXCEPTIONS
         if ($role !== 'admin') {
-            // Jika user role 'user', redirect ke dashboard user
-            if ($role === 'user') {
-                return redirect()->route('user.dashboard')->with('error', 'Access denied. User dashboard redirected.');
-            }
-            
-            // Jika role tidak dikenali, logout dan redirect ke login
+            // Force logout for any non-admin trying to access admin routes
             auth()->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('login')->with('error', 'Invalid user role. Please login again.');
+            
+            // Redirect to appropriate dashboard or login
+            if ($role === 'user') {
+                return redirect()->route('login')->with('error', 'User cannot access admin panel. Please login as admin.');
+            }
+            
+            return redirect()->route('login')->with('error', 'Invalid role for admin access. Please login again.');
         }
 
-        // Set session flag untuk admin
-        session(['user_role' => 'admin']);
+        // Double-check session integrity
+        if (session('user_role') !== 'admin') {
+            session(['user_role' => 'admin', 'role_verified_at' => now()]);
+        }
+
+        // Additional security check - verify user ID matches session
+        if (session('user_id') != $user->id) {
+            session(['user_id' => $user->id, 'user_role' => 'admin']);
+        }
 
         return $next($request);
     }

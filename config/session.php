@@ -129,7 +129,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-session'
+        Str::slug((string) env('APP_NAME', 'laravel')).'-secure-session'
     ),
 
     /*
@@ -144,6 +144,19 @@ return [
     */
 
     'path' => env('SESSION_PATH', '/'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Same Site
+    |--------------------------------------------------------------------------
+    |
+    | This option determines how your session cookies behave when cross-site
+    | requests take place, and can be used to mitigate CSRF attacks. By default,
+    | we will set this value to "lax" since this provides good security.
+    |
+    */
+
+    'same_site' => env('SESSION_SAME_SITE', 'lax'),
 
     /*
     |--------------------------------------------------------------------------
