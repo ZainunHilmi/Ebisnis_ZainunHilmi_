@@ -20,13 +20,24 @@ class IsAdmin
 
         // Role checking - redirect only, NO logout to prevent global session invalidation
         if ($role !== 'admin') {
-            // Redirect user to user dashboard without logout
-            if ($role === 'user') {
-                return redirect()->route('user.dashboard')->with('warning', 'User area is separate from admin panel.');
+            // Prevent redirect loop by checking if already on correct route
+            if ($role === 'user' && !$request->is('user/*')) {
+                return redirect()->route('user.dashboard')->with('info', 'Redirected to user area.');
             }
             
             // For unrecognized roles, redirect to login
             return redirect()->route('login')->with('error', 'Invalid role. Please login again.');
+        }
+
+        // Session isolation: verify session consistency
+        $sessionUserId = session('user_id');
+        if ($sessionUserId && $sessionUserId != $user->id) {
+            // Session mismatch detected - sync session
+            session([
+                'user_id' => $user->id,
+                'user_role' => $role,
+                'session_synced_at' => now()->timestamp
+            ]);
         }
 
         return $next($request);

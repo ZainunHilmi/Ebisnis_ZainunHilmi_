@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,5 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle CSRF Token Mismatch (419 Page Expired)
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            if ($request->is('login') || $request->is('admin/*') || $request->is('user/*')) {
+                return redirect()->route('login')
+                    ->with('error', 'Your session has expired due to role switching. Please login again.');
+            }
+            return redirect()->back()->with('error', 'Session expired. Please refresh and try again.');
+        });
     })->create();

@@ -24,10 +24,24 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Check if another user is already logged in (role switching scenario)
+        if (Auth::check()) {
+            $currentUser = Auth::user();
+            $currentRole = strtolower(trim((string) ($currentUser->role ?? '')));
+            
+            // If trying to login as different user, logout first but preserve session structure
+            $incomingEmail = $request->input('email');
+            if ($currentUser->email !== $incomingEmail) {
+                // Logout without full session invalidation to preserve CSRF token context
+                Auth::guard('web')->logout();
+                // Don't invalidate session here - let the new login regenerate it
+            }
+        }
+
         // LoginRequest::authenticate() akan melakukan Auth::attempt + rate-limiting
         $request->authenticate();
 
-        // Hindari session fixation
+        // Hindari session fixation - regenerate session ID but preserve CSRF token
         $request->session()->regenerate();
 
         $user = Auth::user();
@@ -41,11 +55,12 @@ class AuthenticatedSessionController extends Controller
         // Normalisasi role: hindari case/whitespace/null issues
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // Set session untuk isolation
+        // Set session untuk isolation dengan session ID tracking
         session([
             'user_id' => $user->id,
             'user_role' => $role,
-            'login_timestamp' => now()->timestamp
+            'login_timestamp' => now()->timestamp,
+            'session_initiated' => true
         ]);
 
         // Prioritas admin => redirect ke admin.dashboard
