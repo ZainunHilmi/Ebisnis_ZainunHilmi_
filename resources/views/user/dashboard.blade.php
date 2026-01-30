@@ -17,7 +17,7 @@
                 <div class="mt-6 md:mt-0 flex space-x-4">
                     <div class="px-6 py-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-center">
                         <p class="text-xs font-bold text-primary-200 uppercase tracking-widest mb-1">Items in Cart</p>
-                        <p class="text-2xl font-black text-white">{{ $user->cartItems->count() ?? 0 }}</p>
+                        <p class="text-2xl font-black text-white">{{ auth()->user()->cartItems->count() ?? 0 }}</p>
                     </div>
                 </div>
             </div>
