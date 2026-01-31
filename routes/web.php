@@ -85,6 +85,57 @@ Route::middleware('auth')->group(function () {
 });
 
 // ==========================
+// DEBUG ROUTES - Session Testing
+// ==========================
+Route::get('/debug-session', function () {
+    $sessionId = session()->getId();
+    $sessionName = config('session.cookie');
+    $cookies = request()->cookies->all();
+    $csrfToken = csrf_token();
+    $authCheck = auth()->check();
+    $user = auth()->user();
+    $panelContext = request()->attributes->get('panel_context', 'user');
+    
+    return response()->json([
+        'panel' => $panelContext,
+        'session_id' => $sessionId,
+        'session_name' => $sessionName,
+        'session_path' => config('session.path'),
+        'cookies' => $cookies,
+        'csrf_token' => $csrfToken,
+        'auth_check' => $authCheck,
+        'user_id' => $user ? $user->id : null,
+        'user_role' => $user ? $user->role : null,
+        'timestamp' => now()->toDateTimeString(),
+    ]);
+});
+
+Route::prefix('admin')->group(function () {
+    Route::get('/debug-session', function () {
+        $sessionId = session()->getId();
+        $sessionName = config('session.cookie');
+        $cookies = request()->cookies->all();
+        $csrfToken = csrf_token();
+        $authCheck = auth()->check();
+        $user = auth()->user();
+        $panelContext = request()->attributes->get('panel_context', 'admin');
+        
+        return response()->json([
+            'panel' => $panelContext,
+            'session_id' => $sessionId,
+            'session_name' => $sessionName,
+            'session_path' => config('session.path'),
+            'cookies' => $cookies,
+            'csrf_token' => $csrfToken,
+            'auth_check' => $authCheck,
+            'user_id' => $user ? $user->id : null,
+            'user_role' => $user ? $user->role : null,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+    });
+});
+
+// ==========================
 // Auth routes (Breeze)
 // ==========================
 require __DIR__ . '/auth.php';

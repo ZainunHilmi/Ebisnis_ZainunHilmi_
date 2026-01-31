@@ -39,16 +39,19 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+            'cookie' => 'laravel_session',
         ],
         
         'user' => [
             'driver' => 'session',
             'provider' => 'users',
+            'cookie' => 'laravel_session',
         ],
         
         'admin' => [
             'driver' => 'session',
             'provider' => 'users',
+            'cookie' => 'laravel_admin_session',
         ],
     ],
 
