@@ -21,109 +21,55 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
-     * FIXED: Properly handles dual session isolation without invalidating other sessions
+     * Simplified for Vercel compatibility - standard Laravel authentication
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Get panel context from request attributes (set by DynamicSessionCookie)
-        $panelContext = $request->attributes->get('panel_context', 'user');
-        
-        // Check if already logged in with different role
-        if (Auth::check()) {
-            $currentUser = Auth::user();
-            $currentRole = strtolower(trim((string) ($currentUser->role ?? '')));
-            $incomingEmail = $request->input('email');
-            
-            // Only logout if different email trying to login
-            if ($currentUser->email !== $incomingEmail) {
-                // Logout current user from current guard only
-                $guard = $panelContext === 'admin' ? 'admin' : 'user';
-                Auth::guard($guard)->logout();
-                
-                // Clear session data for current panel only
-                session()->forget(['user_id', 'user_role', 'login_timestamp']);
-                
-                // Don't invalidate session completely - preserve other panel sessions
-                $request->session()->regenerate(false); // Don't destroy old session
-            }
-        }
+        // Standard Laravel authentication
+        $request->authenticate();
 
-        // Authenticate using appropriate guard
-        $guard = $panelContext === 'admin' ? 'admin' : 'user';
-        
-        // Custom authentication attempt with specific guard
-        $credentials = $request->only('email', 'password');
-        
-        if (!Auth::guard($guard)->attempt($credentials)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
+        // Regenerate session to prevent fixation
+        $request->session()->regenerate();
 
-        // Get authenticated user
-        $user = Auth::guard($guard)->user();
+        $user = Auth::user();
 
-        if (!$user) {
-            Auth::guard($guard)->logout();
+        if (! $user) {
             return redirect()->route('login')->withErrors(['email' => __('auth.failed')]);
         }
 
         // Normalize role
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // Set panel-specific session data
+        // Set basic session data
         session([
             'user_id' => $user->id,
             'user_role' => $role,
             'login_timestamp' => now()->timestamp,
-            'panel_context' => $panelContext,
-            'session_initiated' => true
         ]);
 
-        // Set intended URL based on role and context
-        $intendedUrl = null;
-        if ($role === 'admin' && $panelContext === 'admin') {
-            $intendedUrl = route('admin.dashboard');
-        } elseif ($role === 'user' && $panelContext === 'user') {
-            $intendedUrl = route('user.dashboard');
-        } elseif ($role === 'admin') {
-            // Admin accessing user context - redirect to admin
-            $intendedUrl = route('admin.dashboard');
-        } else {
-            // User accessing admin context - redirect to user
-            $intendedUrl = route('user.dashboard');
+        // Determine redirect based on role
+        if ($role === 'admin') {
+            return redirect()->intended(route('admin.dashboard'));
         }
 
-        return redirect()->intended($intendedUrl);
+        return redirect()->intended(route('user.dashboard'));
     }
 
     /**
      * Destroy an authenticated session.
-     * FIXED: Logout from specific panel only, preserve other sessions
+     * Simplified logout for Vercel compatibility
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Get panel context from request attributes
-        $panelContext = $request->attributes->get('panel_context', 'user');
-        $guard = $panelContext === 'admin' ? 'admin' : 'user';
+        // Clear session data
+        session()->forget(['user_id', 'user_role', 'login_timestamp']);
         
-        // Clear panel-specific session data
-        session()->forget(['user_id', 'user_role', 'login_timestamp', 'panel_context']);
-        
-        // Logout from specific guard only
-        Auth::guard($guard)->logout();
+        Auth::guard('web')->logout();
 
-        // Clear the specific session cookie for this panel
-        $cookieName = $panelContext === 'admin' ? 'admin_session' : 'user_session';
-        $cookiePath = $panelContext === 'admin' ? '/admin' : '/';
-        
-        // Create expired cookie to clear it
-        $expiredCookie = cookie($cookieName, '', -1, $cookiePath, null, true, true, false, 
-            $panelContext === 'admin' ? 'strict' : 'lax');
+        $request->session()->invalidate();
 
-        // Regenerate CSRF token for security
         $request->session()->regenerateToken();
 
-        return redirect('/')->withCookie($expiredCookie);
+        return redirect('/');
     }
 }

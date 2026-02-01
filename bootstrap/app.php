@@ -13,14 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // CRITICAL: Trust all proxies for Vercel HTTPS detection
         $middleware->trustProxies(at: '*');
         
-        // Configure web middleware group with proper session isolation
-        // DynamicSessionCookie MUST run before StartSession to configure cookie name/path
+        // Standard Laravel web middleware stack - no custom session isolation
         $middleware->web([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \App\Http\Middleware\DynamicSessionCookie::class, // CRITICAL: Must be before StartSession
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
@@ -38,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (TokenMismatchException $e, Request $request) {
             if ($request->is('login') || $request->is('admin/*') || $request->is('user/*')) {
                 return redirect()->route('login')
-                    ->with('error', 'Your session has expired due to role switching. Please login again.');
+                    ->with('error', 'Your session has expired. Please login again.');
             }
             return redirect()->back()->with('error', 'Session expired. Please refresh and try again.');
         });

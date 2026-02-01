@@ -9,7 +9,7 @@ return [
     | Default Session Driver
     |--------------------------------------------------------------------------
     |
-    | This option determines the default session driver that is utilized for
+    | This option determines default session driver that is utilized for
     | incoming requests. Laravel supports a variety of storage options to
     | persist session data. Database storage is a great default choice.
     |
@@ -25,10 +25,10 @@ return [
     | Session Lifetime
     |--------------------------------------------------------------------------
     |
-    | Here you may specify the number of minutes that you wish the session
+    | Here you may specify number of minutes that you wish session
     | to be allowed to remain idle before it expires. If you want them
     | to expire immediately when the browser is closed then you may
-    | indicate that via the expire_on_close configuration option.
+    | indicate that via expire_on_close configuration option.
     |
     */
 
@@ -169,7 +169,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => null,
 
     /*
     |--------------------------------------------------------------------------

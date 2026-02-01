@@ -39,21 +39,6 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
-            'cookie' => 'laravel_session',
-        ],
-        
-        // User panel guard - uses user_session cookie
-        'user' => [
-            'driver' => 'session',
-            'provider' => 'users',
-            'cookie' => 'user_session',
-        ],
-        
-        // Admin panel guard - uses admin_session cookie
-        'admin' => [
-            'driver' => 'session',
-            'provider' => 'users',
-            'cookie' => 'admin_session',
         ],
     ],
 
