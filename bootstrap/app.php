@@ -16,7 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // CRITICAL: Trust all proxies for Vercel HTTPS detection
         $middleware->trustProxies(at: '*');
         
-        // Standard Laravel web middleware stack - no custom session isolation
+        // HARD SWITCH: Force different session cookies for Admin vs User
+        // This MUST run before StartSession to set the correct cookie name
+        $middleware->prepend(\App\Http\Middleware\ForceAdminSession::class);
+        
+        // Standard Laravel web middleware stack
         $middleware->web([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,

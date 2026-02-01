@@ -129,9 +129,7 @@ return [
     |
     */
 
-    'cookie' => str_contains($_SERVER['REQUEST_URI'] ?? '', '/admin') 
-            ? 'ebisnis_admin_session' 
-            : 'ebisnis_user_session',
+    'cookie' => 'ebisnis_session_temp',
 
     /*
     |--------------------------------------------------------------------------
