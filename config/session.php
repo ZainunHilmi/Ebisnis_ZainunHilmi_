@@ -129,9 +129,9 @@ return [
     |
     */
 
-    'cookie' => (isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/admin')) 
-        ? 'ebisnis_admin_session' 
-        : 'ebisnis_user_session',
+    'cookie' => str_contains($_SERVER['REQUEST_URI'] ?? '', '/admin') 
+            ? 'ebisnis_admin_session' 
+            : 'ebisnis_user_session',
 
     /*
     |--------------------------------------------------------------------------
