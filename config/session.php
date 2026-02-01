@@ -118,19 +118,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Session Cookie Name
+    | Session Cookie Name - DYNAMIC BASED ON URI
     |--------------------------------------------------------------------------
     |
-    | Here you may change the name of the session cookie that is created by
-    | the framework. Typically, you should not need to change this value
-    | since doing so does not grant a meaningful security improvement.
+    | CRITICAL FOR VERCEL: This creates separate session cookies for Admin
+    | and User panels to prevent session collision and race conditions.
+    |
+    | Admin: ebisnis_admin_session
+    | User: ebisnis_user_session
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-secure-session'
-    ),
+    'cookie' => (isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/admin')) 
+        ? 'ebisnis_admin_session' 
+        : 'ebisnis_user_session',
 
     /*
     |--------------------------------------------------------------------------
@@ -151,8 +152,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This option determines how your session cookies behave when cross-site
-    | requests take place, and can be used to mitigate CSRF attacks. By default,
-    | we will set this value to "lax" since this provides good security.
+    | requests take place, and can be used to mitigate CSRF attacks.
     |
     */
 
@@ -164,8 +164,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value determines the domain and subdomains the session cookie is
-    | available to. By default, the cookie will be available to the root
-    | domain and all subdomains. Typically, this shouldn't be changed.
+    | available to. Defaults to null so Laravel detects the domain automatically.
     |
     */
 
@@ -182,7 +181,7 @@ return [
     |
     */
 
-    'secure' => true,
+    'secure' => env('SESSION_SECURE_COOKIE', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -209,5 +208,19 @@ return [
     */
 
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Blocking
+    |--------------------------------------------------------------------------
+    |
+    | By default, Laravel will block requests from accessing the session if
+    | another request is already processing. Set to false to prevent timeouts
+    | in serverless environments like Vercel where session locks can cause
+    | race conditions and 419 errors.
+    |
+    */
+
+    'block' => false,
 
 ];
