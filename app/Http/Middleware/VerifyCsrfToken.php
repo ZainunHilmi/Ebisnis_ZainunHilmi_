@@ -3,16 +3,18 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Verify CSRF Token - SIMPLIFIED VERSION
+ * Verify CSRF Token - DUAL SESSION VERSION
  * 
- * Menggunakan session yang sudah terisolasi oleh SessionIsolation middleware.
- * Tidak perlu detect panel lagi karena session sudah terpisah.
- * Cukup validasi token dari session yang aktif.
+ * This middleware handles CSRF token validation for both admin and user panels
+ * with different session cookies and CSRF tokens.
+ * 
+ * - Admin: XSRF-TOKEN-ADMIN, admin_session cookie
+ * - User: XSRF-TOKEN, user_session cookie
  */
 class VerifyCsrfToken extends BaseVerifier
 {
@@ -37,11 +39,14 @@ class VerifyCsrfToken extends BaseVerifier
             return $this->addCookieToResponse($request, $next($request));
         }
 
-        // Get token from request
-        $token = $this->getTokenFromRequest($request);
+        // Get panel context from request attributes (set by DynamicSessionCookie)
+        $panelContext = $request->attributes->get('panel_context', 'user');
+        $isAdmin = $panelContext === 'admin';
+
+        // Get CSRF token from appropriate sources based on panel
+        $token = $this->getTokenFromRequestWithPanel($request, $isAdmin);
         
         // Validate token against current session
-        // Session sudah terisolasi oleh SessionIsolation middleware
         if ($this->validateToken($token, $request)) {
             return $this->addCookieToResponse($request, $next($request));
         }
@@ -62,37 +67,46 @@ class VerifyCsrfToken extends BaseVerifier
     }
 
     /**
-     * Get CSRF token from request
+     * Get CSRF token from request with panel awareness
+     * Enhanced to handle both admin and user CSRF tokens
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  bool  $isAdmin
      * @return string|null
      */
-    protected function getTokenFromRequest($request): ?string
+    protected function getTokenFromRequestWithPanel($request, bool $isAdmin): ?string
     {
+        // Determine expected CSRF cookie name based on panel
+        $csrfCookieName = $isAdmin ? 'XSRF-TOKEN-ADMIN' : 'XSRF-TOKEN';
+        
         // 1. Check _token input (form submissions)
         $token = $request->input('_token');
+        if ($token) return $token;
         
         // 2. Check header X-CSRF-TOKEN
-        if (!$token) {
-            $token = $request->header('X-CSRF-TOKEN');
-        }
+        $token = $request->header('X-CSRF-TOKEN');
+        if ($token) return $token;
         
         // 3. Check header X-XSRF-TOKEN
-        if (!$token) {
-            $token = $request->header('X-XSRF-TOKEN');
-        }
+        $token = $request->header('X-XSRF-TOKEN');
+        if ($token) return $token;
         
-        // 4. Check cookie XSRF-TOKEN
-        if (!$token) {
-            $token = $request->cookie('XSRF-TOKEN');
-        }
+        // 4. Check panel-specific CSRF cookie
+        $token = $request->cookie($csrfCookieName);
+        if ($token) return $token;
         
-        // 5. Check cookie XSRF-TOKEN-ADMIN (for admin panel)
-        if (!$token) {
+        // 5. Fallback: check both cookies
+        if (!$isAdmin) {
+            // Check admin cookie for user panel (edge case)
             $token = $request->cookie('XSRF-TOKEN-ADMIN');
+            if ($token) return $token;
+        } else {
+            // Check user cookie for admin panel (edge case)
+            $token = $request->cookie('XSRF-TOKEN');
+            if ($token) return $token;
         }
         
-        return is_string($token) ? $token : null;
+        return null;
     }
 
     /**
@@ -115,6 +129,7 @@ class VerifyCsrfToken extends BaseVerifier
 
     /**
      * Add CSRF cookie to response
+     * Enhanced to set panel-specific CSRF cookies
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Symfony\Component\HttpFoundation\Response  $response
@@ -122,14 +137,15 @@ class VerifyCsrfToken extends BaseVerifier
      */
     protected function addCookieToResponse($request, $response)
     {
-        // Determine panel context from request
-        $isAdmin = $request->attributes->get('panel_context') === 'admin';
+        // Get panel context from request attributes
+        $panelContext = $request->attributes->get('panel_context', 'user');
+        $isAdmin = $panelContext === 'admin';
         
         // Set cookie name and path based on panel
         $cookieName = $isAdmin ? 'XSRF-TOKEN-ADMIN' : 'XSRF-TOKEN';
         $cookiePath = $isAdmin ? '/admin' : '/';
         
-        // Create CSRF cookie
+        // Create CSRF cookie with panel-specific settings
         $cookie = new \Symfony\Component\HttpFoundation\Cookie(
             $cookieName,
             $request->session()->token(),
@@ -137,9 +153,9 @@ class VerifyCsrfToken extends BaseVerifier
             $cookiePath,
             null,
             true,   // secure
-            false,  // NOT httpOnly (harus bisa diakses JS)
+            false,  // NOT httpOnly (must be accessible to JavaScript)
             false,
-            'lax'
+            $isAdmin ? 'strict' : 'lax'
         );
         
         $response->headers->setCookie($cookie);

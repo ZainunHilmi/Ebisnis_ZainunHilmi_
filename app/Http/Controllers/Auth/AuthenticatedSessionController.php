@@ -21,86 +21,108 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
-     * FIXED: Properly handles session isolation for dual panel login
+     * FIXED: Properly handles dual session isolation without invalidating other sessions
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Check if another user is already logged in (role switching scenario)
+        // Get panel context from request attributes (set by DynamicSessionCookie)
+        $panelContext = $request->attributes->get('panel_context', 'user');
+        
+        // Check if already logged in with different role
         if (Auth::check()) {
             $currentUser = Auth::user();
             $currentRole = strtolower(trim((string) ($currentUser->role ?? '')));
-            
-            // If trying to login as different user, logout first
             $incomingEmail = $request->input('email');
+            
+            // Only logout if different email trying to login
             if ($currentUser->email !== $incomingEmail) {
-                // Logout current user
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+                // Logout current user from current guard only
+                $guard = $panelContext === 'admin' ? 'admin' : 'user';
+                Auth::guard($guard)->logout();
+                
+                // Clear session data for current panel only
+                session()->forget(['user_id', 'user_role', 'login_timestamp']);
+                
+                // Don't invalidate session completely - preserve other panel sessions
+                $request->session()->regenerate(false); // Don't destroy old session
             }
         }
 
-        // Authenticate the user
-        $request->authenticate();
+        // Authenticate using appropriate guard
+        $guard = $panelContext === 'admin' ? 'admin' : 'user';
+        
+        // Custom authentication attempt with specific guard
+        $credentials = $request->only('email', 'password');
+        
+        if (!Auth::guard($guard)->attempt($credentials)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
 
-        // Regenerate session to prevent fixation
-        $request->session()->regenerate();
+        // Get authenticated user
+        $user = Auth::guard($guard)->user();
 
-        $user = Auth::user();
-
-        // Safety: jika tidak ada user setelah authenticate -> logout & kembali ke login
-        if (! $user) {
-            Auth::guard('web')->logout();
+        if (!$user) {
+            Auth::guard($guard)->logout();
             return redirect()->route('login')->withErrors(['email' => __('auth.failed')]);
         }
 
-        // Normalisasi role
+        // Normalize role
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // Set session data untuk tracking
+        // Set panel-specific session data
         session([
             'user_id' => $user->id,
             'user_role' => $role,
             'login_timestamp' => now()->timestamp,
+            'panel_context' => $panelContext,
             'session_initiated' => true
         ]);
 
-        // Determine redirect based on role
-        if ($role === 'admin') {
-            return redirect()->intended(route('admin.dashboard'));
+        // Set intended URL based on role and context
+        $intendedUrl = null;
+        if ($role === 'admin' && $panelContext === 'admin') {
+            $intendedUrl = route('admin.dashboard');
+        } elseif ($role === 'user' && $panelContext === 'user') {
+            $intendedUrl = route('user.dashboard');
+        } elseif ($role === 'admin') {
+            // Admin accessing user context - redirect to admin
+            $intendedUrl = route('admin.dashboard');
+        } else {
+            // User accessing admin context - redirect to user
+            $intendedUrl = route('user.dashboard');
         }
 
-        // Default -> user dashboard
-        return redirect()->intended(route('user.dashboard'));
+        return redirect()->intended($intendedUrl);
     }
 
     /**
      * Destroy an authenticated session.
-     * FIXED: Properly handles logout without affecting other panel sessions
+     * FIXED: Logout from specific panel only, preserve other sessions
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Get current panel context
-        $isAdmin = $request->attributes->get('panel_context') === 'admin';
+        // Get panel context from request attributes
+        $panelContext = $request->attributes->get('panel_context', 'user');
+        $guard = $panelContext === 'admin' ? 'admin' : 'user';
         
         // Clear panel-specific session data
-        session()->forget(['user_id', 'user_role', 'login_timestamp']);
+        session()->forget(['user_id', 'user_role', 'login_timestamp', 'panel_context']);
         
-        // Logout user
-        Auth::guard('web')->logout();
-
-        // Invalidate session
-        $request->session()->invalidate();
-
-        // Regenerate CSRF token
-        $request->session()->regenerateToken();
+        // Logout from specific guard only
+        Auth::guard($guard)->logout();
 
         // Clear the specific session cookie for this panel
-        $cookieName = $isAdmin ? 'laravel_admin_session' : 'laravel_session';
-        $cookiePath = $isAdmin ? '/admin' : '/';
+        $cookieName = $panelContext === 'admin' ? 'admin_session' : 'user_session';
+        $cookiePath = $panelContext === 'admin' ? '/admin' : '/';
         
         // Create expired cookie to clear it
-        $expiredCookie = cookie($cookieName, '', -1, $cookiePath, null, true, true, false, 'lax');
+        $expiredCookie = cookie($cookieName, '', -1, $cookiePath, null, true, true, false, 
+            $panelContext === 'admin' ? 'strict' : 'lax');
+
+        // Regenerate CSRF token for security
+        $request->session()->regenerateToken();
 
         return redirect('/')->withCookie($expiredCookie);
     }
