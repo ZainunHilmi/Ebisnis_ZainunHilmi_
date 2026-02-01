@@ -21,19 +21,31 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
-     * Simplified for Vercel compatibility - standard Laravel authentication
+     * Uses explicit guards to prevent session collision between admin and user.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Standard Laravel authentication
-        $request->authenticate();
+        // Determine which guard to use based on intended destination or role
+        $guard = 'web';
+        $intended = $request->input('intended');
+        
+        // Check if trying to access admin area
+        if ($intended && str_contains($intended, 'admin')) {
+            $guard = 'admin';
+        }
+        
+        // Attempt authentication with explicit guard
+        if (! Auth::guard($guard)->attempt($request->only('email', 'password'))) {
+            return redirect()->route('login')->withErrors(['email' => __('auth.failed')]);
+        }
 
         // Regenerate session to prevent fixation
         $request->session()->regenerate();
 
-        $user = Auth::user();
+        $user = Auth::guard($guard)->user();
 
         if (! $user) {
+            Auth::guard($guard)->logout();
             return redirect()->route('login')->withErrors(['email' => __('auth.failed')]);
         }
 
@@ -45,6 +57,7 @@ class AuthenticatedSessionController extends Controller
             'user_id' => $user->id,
             'user_role' => $role,
             'login_timestamp' => now()->timestamp,
+            'auth_guard' => $guard,
         ]);
 
         // Determine redirect based on role
@@ -57,14 +70,18 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated session.
-     * Simplified logout for Vercel compatibility
+     * Uses the guard stored in session to prevent collision.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Clear session data
-        session()->forget(['user_id', 'user_role', 'login_timestamp']);
+        // Get the guard used during login
+        $guard = session('auth_guard', 'web');
         
-        Auth::guard('web')->logout();
+        // Clear session data
+        session()->forget(['user_id', 'user_role', 'login_timestamp', 'auth_guard']);
+        
+        // Logout from the specific guard
+        Auth::guard($guard)->logout();
 
         $request->session()->invalidate();
 

@@ -118,18 +118,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Session Cookie Name - DYNAMIC BASED ON URI
+    | Session Cookie Name
     |--------------------------------------------------------------------------
     |
-    | CRITICAL FOR VERCEL: This creates separate session cookies for Admin
-    | and User panels to prevent session collision and race conditions.
-    |
-    | Admin: ebisnis_admin_session
-    | User: ebisnis_user_session
+    | Use environment variable for stable cookie name across Vercel instances.
+    | Set SESSION_COOKIE in Vercel dashboard to a unique name.
     |
     */
 
-    'cookie' => 'ebisnis_session_temp',
+    'cookie' => env('SESSION_COOKIE', 'ebisnis_session'),
 
     /*
     |--------------------------------------------------------------------------
