@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\UserProductController;
 use Illuminate\Support\Facades\Route;
 
 // ==========================
@@ -39,7 +40,7 @@ Route::middleware([
     })->name('products.show');
 
     // User Product Management (CRUD)
-    Route::resource('my-products', \App\Http\Controllers\User\UserProductController::class)
+    Route::resource('my-products', UserProductController::class)
         ->parameters(['my-products' => 'product']);
 
     // Cart Routes
