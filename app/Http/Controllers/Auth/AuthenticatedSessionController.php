@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest; // pakai LoginRequest Breeze-style
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +21,7 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     * FIXED: Properly handles session isolation for dual panel login
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -29,19 +30,20 @@ class AuthenticatedSessionController extends Controller
             $currentUser = Auth::user();
             $currentRole = strtolower(trim((string) ($currentUser->role ?? '')));
             
-            // If trying to login as different user, logout first but preserve session structure
+            // If trying to login as different user, logout first
             $incomingEmail = $request->input('email');
             if ($currentUser->email !== $incomingEmail) {
-                // Logout without full session invalidation to preserve CSRF token context
+                // Logout current user
                 Auth::guard('web')->logout();
-                // Don't invalidate session here - let the new login regenerate it
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
             }
         }
 
-        // LoginRequest::authenticate() akan melakukan Auth::attempt + rate-limiting
+        // Authenticate the user
         $request->authenticate();
 
-        // Hindari session fixation - regenerate session ID but preserve CSRF token
+        // Regenerate session to prevent fixation
         $request->session()->regenerate();
 
         $user = Auth::user();
@@ -52,10 +54,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('login')->withErrors(['email' => __('auth.failed')]);
         }
 
-        // Normalisasi role: hindari case/whitespace/null issues
+        // Normalisasi role
         $role = strtolower(trim((string) ($user->role ?? '')));
 
-        // Set session untuk isolation dengan session ID tracking
+        // Set session data untuk tracking
         session([
             'user_id' => $user->id,
             'user_role' => $role,
@@ -63,7 +65,7 @@ class AuthenticatedSessionController extends Controller
             'session_initiated' => true
         ]);
 
-        // Prioritas admin => redirect ke admin.dashboard
+        // Determine redirect based on role
         if ($role === 'admin') {
             return redirect()->intended(route('admin.dashboard'));
         }
@@ -74,18 +76,32 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated session.
+     * FIXED: Properly handles logout without affecting other panel sessions
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Clear session data
+        // Get current panel context
+        $isAdmin = $request->attributes->get('panel_context') === 'admin';
+        
+        // Clear panel-specific session data
         session()->forget(['user_id', 'user_role', 'login_timestamp']);
         
+        // Logout user
         Auth::guard('web')->logout();
 
+        // Invalidate session
         $request->session()->invalidate();
 
+        // Regenerate CSRF token
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Clear the specific session cookie for this panel
+        $cookieName = $isAdmin ? 'laravel_admin_session' : 'laravel_session';
+        $cookiePath = $isAdmin ? '/admin' : '/';
+        
+        // Create expired cookie to clear it
+        $expiredCookie = cookie($cookieName, '', -1, $cookiePath, null, true, true, false, 'lax');
+
+        return redirect('/')->withCookie($expiredCookie);
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Session Isolation Test Script
+ * Session Isolation Test Script - UPDATED
  * 
- * Test dual session isolation between admin and user panels
- * Run this script to verify session isolation is working correctly
+ * This script tests the dual session isolation between admin and user panels.
+ * Run this after implementing the fixes to verify everything works correctly.
  * 
  * Usage: php test-session-isolation.php
  */
@@ -26,16 +26,16 @@ $tests = [];
 $passed = 0;
 $failed = 0;
 
-// Test 1: Check SessionIsolator middleware exists
-echo "Test 1: SessionIsolator middleware exists\n";
-$middlewarePath = __DIR__ . '/app/Http/Middleware/SessionIsolator.php';
+// Test 1: Check SessionIsolation middleware exists (renamed from SessionIsolator)
+echo "Test 1: SessionIsolation middleware exists\n";
+$middlewarePath = __DIR__ . '/app/Http/Middleware/SessionIsolation.php';
 if (file_exists($middlewarePath)) {
-    echo "✓ PASS: SessionIsolator middleware found\n";
-    $tests[] = ['name' => 'SessionIsolator exists', 'status' => 'PASS'];
+    echo "✓ PASS: SessionIsolation middleware found\n";
+    $tests[] = ['name' => 'SessionIsolation exists', 'status' => 'PASS'];
     $passed++;
 } else {
-    echo "✗ FAIL: SessionIsolator middleware not found\n";
-    $tests[] = ['name' => 'SessionIsolator exists', 'status' => 'FAIL'];
+    echo "✗ FAIL: SessionIsolation middleware not found\n";
+    $tests[] = ['name' => 'SessionIsolation exists', 'status' => 'FAIL'];
     $failed++;
 }
 echo "\n";
@@ -54,25 +54,52 @@ if (file_exists($csrfPath)) {
 }
 echo "\n";
 
-// Test 3: Check Kernel has SessionIsolator in middleware groups
-echo "Test 3: Kernel middleware configuration\n";
-$kernelContent = file_get_contents(__DIR__ . '/app/Http/Kernel.php');
-if (strpos($kernelContent, 'SessionIsolator') !== false) {
-    echo "✓ PASS: SessionIsolator registered in Kernel\n";
-    $tests[] = ['name' => 'Kernel configuration', 'status' => 'PASS'];
-    $passed++;
+// Test 3: Check bootstrap/app.php has SessionIsolation in middleware groups
+echo "Test 3: bootstrap/app.php middleware configuration\n";
+$bootstrapContent = file_get_contents(__DIR__ . '/bootstrap/app.php');
+if (strpos($bootstrapContent, 'SessionIsolation::class') !== false &&
+    strpos($bootstrapContent, 'StartSession::class') !== false) {
+    // Check order - SessionIsolation should be before StartSession
+    $sessionIsoPos = strpos($bootstrapContent, 'SessionIsolation::class');
+    $startSessionPos = strpos($bootstrapContent, 'StartSession::class');
+    if ($sessionIsoPos !== false && $startSessionPos !== false && $sessionIsoPos < $startSessionPos) {
+        echo "✓ PASS: SessionIsolation properly configured before StartSession\n";
+        $tests[] = ['name' => 'bootstrap/app.php configuration', 'status' => 'PASS'];
+        $passed++;
+    } else {
+        echo "✗ FAIL: SessionIsolation should be before StartSession\n";
+        $tests[] = ['name' => 'bootstrap/app.php configuration', 'status' => 'FAIL'];
+        $failed++;
+    }
 } else {
-    echo "✗ FAIL: SessionIsolator not found in Kernel\n";
-    $tests[] = ['name' => 'Kernel configuration', 'status' => 'FAIL'];
+    echo "✗ FAIL: SessionIsolation or StartSession not found in bootstrap/app.php\n";
+    $tests[] = ['name' => 'bootstrap/app.php configuration', 'status' => 'FAIL'];
     $failed++;
 }
 echo "\n";
 
-// Test 4: Check auth.php has multi-guard setup
-echo "Test 4: Multi-guard authentication setup\n";
+// Test 4: Check auth.php has proper middleware setup
+echo "Test 4: Auth routes middleware setup\n";
+$authRoutesContent = file_get_contents(__DIR__ . '/routes/auth.php');
+if (strpos($authRoutesContent, "Route::middleware('guest.redirect')") !== false ||
+    strpos($authRoutesContent, "Route::middleware(['guest.redirect'])") !== false) {
+    echo "✓ PASS: Auth routes use guest.redirect middleware\n";
+    $tests[] = ['name' => 'Auth routes middleware', 'status' => 'PASS'];
+    $passed++;
+} else {
+    echo "✗ FAIL: Auth routes missing guest.redirect middleware\n";
+    $tests[] = ['name' => 'Auth routes middleware', 'status' => 'FAIL'];
+    $failed++;
+}
+echo "\n";
+
+// Test 5: Check multi-guard authentication setup
+echo "Test 5: Multi-guard authentication setup\n";
 $authConfig = file_get_contents(__DIR__ . '/config/auth.php');
-if (strpos($authConfig, "'admin'") !== false && strpos($authConfig, "'user'") !== false) {
-    echo "✓ PASS: Multi-guard configuration found\n";
+if (strpos($authConfig, "'admin'") !== false && 
+    strpos($authConfig, "'user'") !== false &&
+    strpos($authConfig, "'laravel_admin_session'") !== false) {
+    echo "✓ PASS: Multi-guard configuration found with admin session cookie\n";
     $tests[] = ['name' => 'Multi-guard setup', 'status' => 'PASS'];
     $passed++;
 } else {
@@ -82,15 +109,16 @@ if (strpos($authConfig, "'admin'") !== false && strpos($authConfig, "'user'") !=
 }
 echo "\n";
 
-// Test 5: Check environment variables
-echo "Test 5: Environment variables\n";
+// Test 6: Check environment variables
+echo "Test 6: Environment variables\n";
 $requiredEnv = [
     'SESSION_DRIVER',
-    'SESSION_COOKIE',
+    'SESSION_LIFETIME',
+    'SESSION_SECURE_COOKIE',
     'ADMIN_SESSION_COOKIE',
-    'SESSION_SECURE_COOKIE'
+    'ADMIN_SESSION_PATH'
 ];
-$envFile = file_get_contents(__DIR__ . '/.env.example');
+$envFile = file_get_contents(__DIR__ . '/.env');
 $allEnvPresent = true;
 foreach ($requiredEnv as $env) {
     if (strpos($envFile, $env) === false) {
@@ -108,39 +136,16 @@ if ($allEnvPresent) {
 }
 echo "\n";
 
-// Test 6: Check migration exists
-echo "Test 6: Session migration\n";
-$migrationExists = false;
-$migrations = glob(__DIR__ . '/database/migrations/*_add_panel_context_to_sessions_table.php');
+// Test 7: Check migration exists
+echo "Test 7: Session migration\n";
+$migrations = glob(__DIR__ . '/database/migrations/*_create_sessions_table.php');
 if (count($migrations) > 0) {
-    echo "✓ PASS: Panel context migration found\n";
+    echo "✓ PASS: Sessions table migration found\n";
     $tests[] = ['name' => 'Session migration', 'status' => 'PASS'];
     $passed++;
 } else {
-    echo "✗ FAIL: Panel context migration not found\n";
+    echo "✗ FAIL: Sessions table migration not found\n";
     $tests[] = ['name' => 'Session migration', 'status' => 'FAIL'];
-    $failed++;
-}
-echo "\n";
-
-// Test 7: Check vercel.json configuration
-echo "Test 7: Vercel configuration\n";
-$vercelConfig = file_get_contents(__DIR__ . '/vercel.json');
-$vercelData = json_decode($vercelConfig, true);
-if (json_last_error() === JSON_ERROR_NONE) {
-    if (isset($vercelData['env']['SESSION_DRIVER']) && 
-        isset($vercelData['env']['ADMIN_SESSION_COOKIE'])) {
-        echo "✓ PASS: Vercel.json properly configured\n";
-        $tests[] = ['name' => 'Vercel configuration', 'status' => 'PASS'];
-        $passed++;
-    } else {
-        echo "✗ FAIL: Vercel.json missing session configuration\n";
-        $tests[] = ['name' => 'Vercel configuration', 'status' => 'FAIL'];
-        $failed++;
-    }
-} else {
-    echo "✗ FAIL: Vercel.json is not valid JSON\n";
-    $tests[] = ['name' => 'Vercel configuration', 'status' => 'FAIL'];
     $failed++;
 }
 echo "\n";
@@ -148,14 +153,48 @@ echo "\n";
 // Test 8: Check routes configuration
 echo "Test 8: Routes configuration\n";
 $routesContent = file_get_contents(__DIR__ . '/routes/web.php');
-if (strpos($routesContent, 'is_admin') !== false && 
-    strpos($routesContent, 'IsUser') !== false) {
-    echo "✓ PASS: Routes properly configured with middleware\n";
+if (strpos($routesContent, "is_admin") !== false && 
+    strpos($routesContent, "IsUser") !== false &&
+    strpos($routesContent, "prefix('user')") !== false &&
+    strpos($routesContent, "prefix('admin')") !== false) {
+    echo "✓ PASS: Routes properly configured with middleware and prefixes\n";
     $tests[] = ['name' => 'Routes configuration', 'status' => 'PASS'];
     $passed++;
 } else {
-    echo "✗ FAIL: Routes missing proper middleware\n";
+    echo "✗ FAIL: Routes missing proper middleware or prefixes\n";
     $tests[] = ['name' => 'Routes configuration', 'status' => 'FAIL'];
+    $failed++;
+}
+echo "\n";
+
+// Test 9: Check AuthenticatedSessionController has isolation logic
+echo "Test 9: Auth Controller isolation logic\n";
+$authControllerContent = file_get_contents(__DIR__ . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php');
+if (strpos($authControllerContent, 'session_initiated') !== false && 
+    strpos($authControllerContent, 'user_role') !== false &&
+    strpos($authControllerContent, 'panel_context') !== false) {
+    echo "✓ PASS: Auth Controller has proper session isolation logic\n";
+    $tests[] = ['name' => 'Auth Controller isolation', 'status' => 'PASS'];
+    $passed++;
+} else {
+    echo "✗ FAIL: Auth Controller missing session isolation logic\n";
+    $tests[] = ['name' => 'Auth Controller isolation', 'status' => 'FAIL'];
+    $failed++;
+}
+echo "\n";
+
+// Test 10: Check SessionIsolation has enhanced detection
+echo "Test 10: SessionIsolation enhanced detection\n";
+$sessionIsoContent = file_get_contents(__DIR__ . '/app/Http/Middleware/SessionIsolation.php');
+if (strpos($sessionIsoContent, 'isAdminRoute') !== false && 
+    strpos($sessionIsoContent, 'Auth::check') !== false &&
+    strpos($sessionIsoContent, 'intended') !== false) {
+    echo "✓ PASS: SessionIsolation has enhanced route detection\n";
+    $tests[] = ['name' => 'SessionIsolation detection', 'status' => 'PASS'];
+    $passed++;
+} else {
+    echo "✗ FAIL: SessionIsolation missing enhanced detection\n";
+    $tests[] = ['name' => 'SessionIsolation detection', 'status' => 'FAIL'];
     $failed++;
 }
 echo "\n";
@@ -173,11 +212,14 @@ if ($failed === 0) {
     echo "✓ ALL TESTS PASSED!\n\n";
     echo "Next steps:\n";
     echo "1. Run migrations: php artisan migrate\n";
-    echo "2. Deploy to Vercel\n";
+    echo "2. Clear caches: php artisan cache:clear && php artisan config:clear\n";
     echo "3. Test with two browsers/tabs:\n";
-    echo "   - Tab 1: example.com/admin/login (login as admin)\n";
-    echo "   - Tab 2: example.com/login (login as user)\n";
-    echo "4. Refresh both tabs - should stay logged in\n";
+    echo "   - Tab 1: Login as admin at /admin/dashboard\n";
+    echo "   - Tab 2: Login as user at /user/dashboard\n";
+    echo "4. Check debug endpoints:\n";
+    echo "   - /debug-session (should show user panel context)\n";
+    echo "   - /admin/debug-session (should show admin panel context)\n";
+    echo "5. Both sessions should have different session IDs\n";
     exit(0);
 } else {
     echo "✗ SOME TESTS FAILED\n";

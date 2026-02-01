@@ -14,6 +14,19 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        
+        // Configure web middleware group with proper session isolation
+        // SessionIsolation MUST run before StartSession to configure cookie name/path
+        $middleware->web([
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \App\Http\Middleware\SessionIsolation::class, // CRITICAL: Must be before StartSession
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ]);
+        
         $middleware->alias([
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
             'is_user' => \App\Http\Middleware\IsUser::class,
